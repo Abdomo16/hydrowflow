@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hydrowflow/features/onboarding/presentation/screens/onboarding_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,10 +11,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        backgroundColor: Colors.white,
-        body: const SizedBox.shrink(),
-      ),
+      theme: ThemeData(fontFamily: 'Inter'),
+      home: Scaffold(backgroundColor: Colors.white, body: OnboardingScreen()),
     );
   }
 }
