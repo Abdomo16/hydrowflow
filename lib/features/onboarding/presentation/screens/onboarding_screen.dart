@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrowflow/features/hydration/presentation/screens/hydration_screen.dart';
 import 'package:hydrowflow/features/onboarding/presentation/widgets/_ActivityTile.dart';
 import 'package:hydrowflow/features/onboarding/presentation/widgets/_MetricCard.dart';
 import '../../logic/onboarding_cubit.dart';
@@ -174,9 +175,22 @@ class OnboardingScreen extends StatelessWidget {
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton(
-                        onPressed: () {
-                          // TODO: calculate water & navigate
+                        onPressed: () async {
+                          final cubit = context.read<OnboardingCubit>();
+
+                          final dailyGoal = await cubit.finishOnboarding();
+
+                          if (dailyGoal == null || !context.mounted) return;
+
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  HydrationScreen(dailyGoal: dailyGoal),
+                            ),
+                          );
                         },
+
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           shape: RoundedRectangleBorder(
