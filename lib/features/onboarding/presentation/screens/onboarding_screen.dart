@@ -6,6 +6,7 @@ import 'package:hydrowflow/features/onboarding/presentation/widgets/_MetricCard.
 import '../../logic/onboarding_cubit.dart';
 import '../../logic/onboarding_state.dart';
 import '../../data/models/onboarding_model.dart';
+import 'package:hydrowflow/core/navigation/main_navigation.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -186,11 +187,10 @@ class OnboardingScreen extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (_) =>
-                                  HydrationScreen(dailyGoal: dailyGoal),
+                                  MainNavigation(dailyGoal: dailyGoal),
                             ),
                           );
                         },
-
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           shape: RoundedRectangleBorder(
