@@ -3,23 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../features/hydration/presentation/screens/hydration_screen.dart';
 import '../../features/reminders/presentation/screens/reminder_screen.dart';
+import '../../features/statistics/presentation/screens/statistics_screen.dart';
 
 import 'bottom_nav_bar.dart';
 import 'logic/navigation_cubit.dart';
 import 'logic/navigation_state.dart';
 import 'package:hydrowflow/core/notifications/notification_service.dart';
-
-// TEMP screens (replace later)
-class StatsScreen extends StatelessWidget {
-  const StatsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Stats', style: TextStyle(color: Colors.white)),
-    );
-  }
-}
 
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
@@ -33,7 +22,7 @@ class AccountScreen extends StatelessWidget {
 }
 
 class MainNavigation extends StatefulWidget {
-  final double dailyGoal;
+  final double dailyGoal; // liters
 
   const MainNavigation({super.key, required this.dailyGoal});
 
@@ -42,11 +31,17 @@ class MainNavigation extends StatefulWidget {
 }
 
 class _MainNavigationState extends State<MainNavigation> {
+  late final int targetCups;
+
   @override
   void initState() {
     super.initState();
 
+    //  Init notifications
     NotificationService.init();
+
+    // Convert liters → cups (250ml)
+    targetCups = (widget.dailyGoal * 1000 / 250).round();
   }
 
   @override
@@ -56,9 +51,16 @@ class _MainNavigationState extends State<MainNavigation> {
       child: BlocBuilder<NavigationCubit, NavigationState>(
         builder: (context, state) {
           final pages = [
+            //  Tracker
             HydrationScreen(dailyGoal: widget.dailyGoal),
-            const StatsScreen(),
+
+            //  REAL STATISTICS PAGE
+            StatisticsScreen(targetCups: targetCups),
+
+            //  Reminders
             const ReminderScreen(),
+
+            // Account
             const AccountScreen(),
           ];
 
