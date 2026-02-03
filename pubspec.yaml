@@ -40,6 +40,14 @@ dependencies:
 
   sqflite: ^2.3.3
   path: ^1.9.0
+  # Local notifications (alarms, reminders)
+  flutter_local_notifications: ^17.2.2
+
+  # Timezone support (required for scheduled notifications)
+  timezone: ^0.9.2
+
+  # Open settings / external URLs
+  url_launcher: ^6.2.5
 
 dev_dependencies:
   flutter_test:
