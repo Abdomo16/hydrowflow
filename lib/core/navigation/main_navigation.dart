@@ -7,6 +7,7 @@ import '../../features/reminders/presentation/screens/reminder_screen.dart';
 import 'bottom_nav_bar.dart';
 import 'logic/navigation_cubit.dart';
 import 'logic/navigation_state.dart';
+import 'package:hydrowflow/core/notifications/notification_service.dart';
 
 // TEMP screens (replace later)
 class StatsScreen extends StatelessWidget {
@@ -31,10 +32,22 @@ class AccountScreen extends StatelessWidget {
   }
 }
 
-class MainNavigation extends StatelessWidget {
+class MainNavigation extends StatefulWidget {
   final double dailyGoal;
 
   const MainNavigation({super.key, required this.dailyGoal});
+
+  @override
+  State<MainNavigation> createState() => _MainNavigationState();
+}
+
+class _MainNavigationState extends State<MainNavigation> {
+  @override
+  void initState() {
+    super.initState();
+
+    NotificationService.init();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +56,7 @@ class MainNavigation extends StatelessWidget {
       child: BlocBuilder<NavigationCubit, NavigationState>(
         builder: (context, state) {
           final pages = [
-            HydrationScreen(dailyGoal: dailyGoal),
+            HydrationScreen(dailyGoal: widget.dailyGoal),
             const StatsScreen(),
             const ReminderScreen(),
             const AccountScreen(),
