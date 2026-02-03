@@ -14,7 +14,7 @@ class NotificationService {
 
   /// INIT
   static Future<void> init() async {
-    // ✅ Initialize timezones
+    //  Initialize timezones
     tz.initializeTimeZones();
 
     const androidSettings = AndroidInitializationSettings(
