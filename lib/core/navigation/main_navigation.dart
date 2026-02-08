@@ -55,7 +55,7 @@ class _MainNavigationState extends State<MainNavigation> {
             HydrationScreen(dailyGoal: widget.dailyGoal),
 
             //  REAL STATISTICS PAGE
-            StatisticsScreen(targetCups: targetCups),
+            StatisticsScreen(),
 
             //  Reminders
             const ReminderScreen(),
