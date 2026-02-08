@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 
 class WeeklyBarChart extends StatelessWidget {
+  final String title;
   final List<int> cups;
+  final List<String> labels;
 
-  const WeeklyBarChart({super.key, required this.cups});
+  const WeeklyBarChart({
+    super.key,
+    required this.title,
+    required this.cups,
+    required this.labels,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +26,9 @@ class WeeklyBarChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Weekly Progress',
-            style: TextStyle(color: Colors.white54, fontSize: 13),
+          Text(
+            title,
+            style: const TextStyle(color: Colors.white54, fontSize: 13),
           ),
           const SizedBox(height: 6),
           Row(
@@ -34,35 +41,36 @@ class WeeklyBarChart extends StatelessWidget {
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(width: 8),
-              const Text(
-                '+12% vs last week',
-                style: TextStyle(
-                  color: Color(0xFF22C55E),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
             ],
           ),
           const SizedBox(height: 18),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: List.generate(cups.length, (i) {
               final h = max == 0 ? 0.0 : (cups[i] / max) * 120;
+
               return Column(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Container(
-                    width: 18,
+                    width: 30,
                     height: h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2F8BEF),
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(30),
+                      gradient: const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color(0xFF5DB4FF), // light top
+                          Color(0xFF2F8BEF), // darker bottom
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    ['M', 'T', 'W', 'T', 'F', 'S', 'S'][i],
+                    labels[i],
                     style: const TextStyle(color: Colors.white38, fontSize: 11),
                   ),
                 ],

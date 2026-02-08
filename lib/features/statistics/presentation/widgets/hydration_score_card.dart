@@ -39,15 +39,6 @@ class HydrationScoreCard extends StatelessWidget {
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 6),
-          const Text(
-            '+5% today',
-            style: TextStyle(
-              color: Color(0xFF22C55E),
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
         ],
       ),
     );
