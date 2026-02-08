@@ -56,9 +56,11 @@ class _Tab extends StatelessWidget {
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: selected ? const Color(0xFF223A55) : Colors.transparent,
+            color: selected
+                ? const Color.fromARGB(255, 19, 28, 37)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(18),
           ),
           child: Center(
