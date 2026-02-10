@@ -18,6 +18,9 @@ class StatisticsScreen extends StatelessWidget {
       backgroundColor: const Color(0xFF0E1621),
       appBar: AppBar(
         backgroundColor: const Color(0xFF0E1621),
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
         centerTitle: true,
         title: const Text(
           'Statistics & Streaks',
@@ -27,55 +30,52 @@ class StatisticsScreen extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 12),
-            child: Icon(Icons.share, color: Colors.white54, size: 18),
-          ),
-        ],
       ),
-
       body: BlocBuilder<StatisticsCubit, StatisticsState>(
         builder: (context, state) {
           if (state.loading) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: Color(0xFF2F8BEF)),
+            );
           }
 
           final isWeek = state.view == StatsView.week;
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                /// Hydration score (same card – different meaning)
-                HydrationScoreCard(score: state.hydrationScore),
-                const SizedBox(height: 16),
+          return RefreshIndicator(
+            onRefresh: () => context.read<StatisticsCubit>().refresh(),
+            color: const Color(0xFF2F8BEF),
+            backgroundColor: const Color(0xFF16202A),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                children: [
+                  HydrationScoreCard(score: state.hydrationScore),
+                  const SizedBox(height: 16),
 
-                ///  Streak (always visible)
-                StreakCard(streak: state.streak),
-                const SizedBox(height: 24),
+                  StreakCard(streak: state.streak),
+                  const SizedBox(height: 24),
 
-                ///  Week / Month toggle
-                const WeekMonthToggle(),
-                const SizedBox(height: 20),
+                  const WeekMonthToggle(),
+                  const SizedBox(height: 20),
 
-                ///  Progress (Weekly OR Monthly – SAME CARD)
-                WeeklyBarChart(
-                  title: isWeek ? 'Weekly Progress' : 'Monthly Progress',
-                  cups: isWeek ? state.weeklyCups : state.monthlyCups,
-                  labels: isWeek
-                      ? const ['M', 'T', 'W', 'T', 'F', 'S', 'S']
-                      : const ['W1', 'W2', 'W3', 'W4'],
-                ),
-                const SizedBox(height: 24),
+                  WeeklyBarChart(
+                    title: isWeek ? 'Weekly Progress' : 'Monthly Progress',
+                    cups: isWeek ? state.weeklyCups : state.monthlyCups,
+                    labels: isWeek
+                        ? const ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+                        : const ['W1', 'W2', 'W3', 'W4'],
+                    spread: !isWeek,
+                  ),
+                  const SizedBox(height: 24),
 
-                ///  Monthly overview (ALWAYS visible – like design)
-                MonthlyOverview(
-                  avg: state.avgMonthly,
-                  completion: state.completionRate,
-                  bestDay: state.bestDay,
-                ),
-              ],
+                  MonthlyOverview(
+                    avg: state.avgMonthly,
+                    completion: state.completionRate,
+                    bestDay: state.bestDay,
+                  ),
+                ],
+              ),
             ),
           );
         },
