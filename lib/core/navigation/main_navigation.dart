@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../features/hydration/presentation/screens/hydration_screen.dart';
 import '../../features/reminders/presentation/screens/reminder_screen.dart';
 import '../../features/statistics/presentation/screens/statistics_screen.dart';
+import '../../features/statistics/logic/statistics_cubit.dart';
+import '../../features/statistics/data/repositories/statistics_repository.dart';
 
 import 'bottom_nav_bar.dart';
 import 'logic/navigation_cubit.dart';
@@ -37,7 +39,7 @@ class _MainNavigationState extends State<MainNavigation> {
   void initState() {
     super.initState();
 
-    //  Init notifications
+    // Init notifications
     NotificationService.init();
 
     // Convert liters → cups (250ml)
@@ -46,18 +48,29 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => NavigationCubit(),
-      child: BlocBuilder<NavigationCubit, NavigationState>(
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => NavigationCubit()),
+        BlocProvider(
+          create: (_) => StatisticsCubit(StatisticsRepository(), targetCups),
+        ),
+      ],
+      child: BlocConsumer<NavigationCubit, NavigationState>(
+        listener: (context, state) {
+          // Reload statistics every time
+          if (state.index == 1) {
+            context.read<StatisticsCubit>().load();
+          }
+        },
         builder: (context, state) {
           final pages = [
-            //  Tracker
+            // Tracker
             HydrationScreen(dailyGoal: widget.dailyGoal),
 
-            //  REAL STATISTICS PAGE
-            StatisticsScreen(),
+            // Statistics
+            const StatisticsScreen(),
 
-            //  Reminders
+            // Reminders
             const ReminderScreen(),
 
             // Account
@@ -66,9 +79,7 @@ class _MainNavigationState extends State<MainNavigation> {
 
           return Scaffold(
             backgroundColor: const Color(0xFF0E1621),
-
             body: IndexedStack(index: state.index, children: pages),
-
             bottomNavigationBar: AppBottomNavBar(
               currentIndex: state.index,
               onTap: (i) => context.read<NavigationCubit>().changeTab(i),

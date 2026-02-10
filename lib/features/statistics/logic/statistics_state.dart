@@ -2,18 +2,13 @@ enum StatsView { week, month }
 
 class StatisticsState {
   final StatsView view;
-
   final int streak;
-
   final List<int> weeklyCups;
-  final List<int> monthlyCups; // 👈 cups per week
-
+  final List<int> monthlyCups;
   final double hydrationScore;
-
   final double avgMonthly;
   final double completionRate;
   final String bestDay;
-
   final bool loading;
 
   const StatisticsState({
@@ -32,12 +27,12 @@ class StatisticsState {
     return const StatisticsState(
       view: StatsView.week,
       streak: 0,
-      weeklyCups: [],
-      monthlyCups: [],
+      weeklyCups: [0, 0, 0, 0, 0, 0, 0],
+      monthlyCups: [0, 0, 0, 0],
       hydrationScore: 0,
       avgMonthly: 0,
       completionRate: 0,
-      bestDay: '',
+      bestDay: '-',
       loading: true,
     );
   }

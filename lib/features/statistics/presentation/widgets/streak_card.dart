@@ -7,6 +7,10 @@ class StreakCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final subtitle = streak == 0
+        ? 'Start your first streak 💧'
+        : 'Keep going, don’t stop 🔥';
+
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -44,9 +48,9 @@ class StreakCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
-            'Personal best: 12',
-            style: TextStyle(color: Colors.white54, fontSize: 12),
+          Text(
+            subtitle,
+            style: const TextStyle(color: Colors.white54, fontSize: 12),
           ),
         ],
       ),
