@@ -4,10 +4,18 @@ import 'statistics_state.dart';
 
 class StatisticsCubit extends Cubit<StatisticsState> {
   final StatisticsRepository repo;
-  final int targetCups;
+
+  int targetCups;
 
   StatisticsCubit(this.repo, this.targetCups)
     : super(StatisticsState.initial()) {
+    load();
+  }
+
+  void updateTarget(int newTarget) {
+    if (newTarget == targetCups) return;
+
+    targetCups = newTarget;
     load();
   }
 
