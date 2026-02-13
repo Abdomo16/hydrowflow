@@ -14,10 +14,14 @@ class HydrationState {
     return consumedCups / totalCups;
   }
 
-  HydrationState copyWith({int? consumedCups}) {
+  HydrationState copyWith({
+    double? dailyGoalLiters,
+    int? totalCups,
+    int? consumedCups,
+  }) {
     return HydrationState(
-      dailyGoalLiters: dailyGoalLiters,
-      totalCups: totalCups,
+      dailyGoalLiters: dailyGoalLiters ?? this.dailyGoalLiters,
+      totalCups: totalCups ?? this.totalCups,
       consumedCups: consumedCups ?? this.consumedCups,
     );
   }

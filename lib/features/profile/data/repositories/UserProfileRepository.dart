@@ -1,22 +1,9 @@
-import 'package:hydrowflow/database/app_database.dart';
-import '../models/onboarding_model.dart';
+import '../../../../database/app_database.dart';
+import '../models/profile_model.dart';
 import 'package:sqflite/sqflite.dart';
 
 class UserProfileRepository {
-  Future<void> saveProfile(OnboardingModel model, double dailyGoal) async {
-    final db = await AppDatabase.database;
-
-    await db.insert('user_profile', {
-      'id': 1,
-      'height': model.heightCm,
-      'weight': model.weightKg,
-      'activity_level': model.activityLevel.name,
-      'daily_goal': dailyGoal,
-      'onboarding_done': 1,
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
-  }
-
-  Future<Map<String, dynamic>?> getProfile() async {
+  Future<ProfileModel?> getProfile() async {
     final db = await AppDatabase.database;
 
     final result = await db.query(
@@ -27,7 +14,7 @@ class UserProfileRepository {
 
     if (result.isEmpty) return null;
 
-    return result.first;
+    return ProfileModel.fromMap(result.first);
   }
 
   Future<void> updateProfile({
@@ -48,6 +35,7 @@ class UserProfileRepository {
       },
       where: 'id = ?',
       whereArgs: [1],
+      conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 }

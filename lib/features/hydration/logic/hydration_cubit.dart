@@ -16,6 +16,15 @@ class HydrationCubit extends Cubit<HydrationState> {
     loadToday();
   }
 
+  //   update goal dynamically
+  void updateGoal(double newGoal) {
+    if (newGoal == state.dailyGoalLiters) return;
+
+    final newTotalCups = (newGoal * 1000 / 250).round();
+
+    emit(state.copyWith(dailyGoalLiters: newGoal, totalCups: newTotalCups));
+  }
+
   Future<void> loadToday() async {
     final cups = await repository.getTodayCups();
     emit(state.copyWith(consumedCups: cups));
