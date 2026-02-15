@@ -14,11 +14,11 @@ class _SoundSelectorState extends State<SoundSelector> {
   bool expanded = false;
 
   static const sounds = [
-    {'id': 'water', 'label': 'Water'},
-    {'id': 'notification_tone', 'label': 'Soft Tone'},
-    {'id': 'notification_power', 'label': 'Power Alert'},
-    {'id': 'mixkitclearannouncetones', 'label': 'Announcement'},
-    {'id': 'bubble', 'label': 'Bubble'},
+    {'id': 'electric_water_flow', 'label': 'Electric Water Flow'},
+    {'id': 'soft_electric_bell', 'label': 'Soft Electric Bell'},
+    {'id': 'electric_minimal_ping', 'label': 'Electric Minimal Ping'},
+    {'id': 'ultra_minimal_tech_pulse', 'label': 'Ultra Minimal Tech Pulse'},
+    {'id': 'electric_fusion', 'label': 'Electric Fusion'},
   ];
 
   @override
@@ -33,7 +33,7 @@ class _SoundSelectorState extends State<SoundSelector> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 🔘 MAIN BUTTON
+            //  MAIN BUTTON
             GestureDetector(
               onTap: () {
                 setState(() {
@@ -74,7 +74,7 @@ class _SoundSelectorState extends State<SoundSelector> {
               ),
             ),
 
-            // 🎵 SOUND LIST
+            // SOUND LIST
             if (expanded) ...[
               const SizedBox(height: 10),
               Column(
@@ -86,7 +86,7 @@ class _SoundSelectorState extends State<SoundSelector> {
                       context.read<ReminderCubit>().changeSound(sound['id']!);
 
                       setState(() {
-                        expanded = false; // 👈 تقفل بعد الاختيار
+                        expanded = false;
                       });
                     },
                     child: Container(
