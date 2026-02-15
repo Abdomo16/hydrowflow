@@ -14,32 +14,30 @@ class NotificationLoop {
     final wakeTime = _combine(now, wake);
     DateTime sleepTime = _combine(now, sleep);
 
+    // Handle sleep after midnight
     if (sleepTime.isBefore(wakeTime)) {
       sleepTime = sleepTime.add(const Duration(days: 1));
     }
 
-    DateTime current = now.isBefore(wakeTime) ? wakeTime : now;
+    // If now is before wake → schedule at wake
+    DateTime nextTime = now.isBefore(wakeTime) ? wakeTime : now;
 
-    // Align first notification to frequency
-    final remainder = current.minute % frequencyMinutes;
+    // Align next reminder to frequency
+    final remainder = nextTime.minute % frequencyMinutes;
     if (remainder != 0) {
-      current = current.add(Duration(minutes: frequencyMinutes - remainder));
+      nextTime = nextTime.add(Duration(minutes: frequencyMinutes - remainder));
     }
 
-    //  Stable IDs
-    int id = 1000;
+    // If next reminder is after sleep → do nothing
+    if (nextTime.isAfter(sleepTime)) return;
 
-    while (current.isBefore(sleepTime)) {
-      await NotificationService.schedule(
-        id: id++,
-        dateTime: current,
-        title: 'Drink Water 💧',
-        body: 'Stay hydrated!',
-        sound: sound,
-      );
-
-      current = current.add(Duration(minutes: frequencyMinutes));
-    }
+    await NotificationService.schedule(
+      id: 1000, // single stable ID
+      dateTime: nextTime,
+      title: 'Drink Water 💧',
+      body: 'Stay hydrated!',
+      sound: sound,
+    );
   }
 
   static DateTime _combine(DateTime base, String time) {
