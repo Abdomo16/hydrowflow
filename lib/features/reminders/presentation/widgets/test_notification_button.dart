@@ -22,8 +22,51 @@ class TestNotificationButton extends StatelessWidget {
           );
 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Test notification will appear in 5 seconds 🔔'),
+            SnackBar(
+              behavior: SnackBarBehavior.fixed,
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              duration: const Duration(seconds: 3),
+
+              content: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E2A38),
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: [
+                    BoxShadow(
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
+                      color: Colors.black.withOpacity(0.25),
+                    ),
+                  ],
+                ),
+
+                child: Row(
+                  children: const [
+                    Icon(
+                      Icons.notifications_active,
+                      color: Color(0xFF2F8BEF),
+                      size: 22,
+                    ),
+                    SizedBox(width: 12),
+
+                    Expanded(
+                      child: Text(
+                        "Test notification will appear in 5 seconds ",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           );
         },

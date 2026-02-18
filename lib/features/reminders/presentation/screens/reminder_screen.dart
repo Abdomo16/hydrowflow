@@ -5,6 +5,9 @@ import 'package:hydrowflow/features/reminders/data/repositories/reminder_reposit
 import 'package:hydrowflow/features/reminders/logic/reminder_cubit.dart';
 import 'package:hydrowflow/features/reminders/logic/reminder_state.dart';
 
+import 'package:hydrowflow/features/hydration/data/hydration_repository.dart';
+import 'package:hydrowflow/features/onboarding/data/repositories/user_profile_repository.dart';
+
 import 'package:hydrowflow/features/reminders/presentation/widgets/active_hours_card.dart';
 import 'package:hydrowflow/features/reminders/presentation/widgets/frequency_selector.dart';
 import 'package:hydrowflow/features/reminders/presentation/widgets/reminder_toggle.dart';
@@ -17,14 +20,17 @@ class ReminderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => ReminderCubit(ReminderRepository()),
+      create: (_) => ReminderCubit(
+        ReminderRepository(),
+        HydrationRepository(),
+        UserProfileRepository(),
+      ),
       child: Scaffold(
         backgroundColor: const Color(0xFF0E1621),
 
         appBar: AppBar(
           title: const Text("Reminders", style: TextStyle(color: Colors.white)),
           backgroundColor: const Color(0xFF0E1621),
-
           elevation: 0,
           scrolledUnderElevation: 0,
         ),
@@ -36,15 +42,15 @@ class ReminderScreen extends StatelessWidget {
             }
 
             return ScrollConfiguration(
-              behavior: ScrollConfiguration.of(context).copyWith(
-                overscroll: false, // removes fade/stretch effect
-              ),
+              behavior: ScrollConfiguration.of(
+                context,
+              ).copyWith(overscroll: false),
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    //  Toggle Reminder ON/OFF
+                    /// Toggle Reminder ON/OFF
                     ReminderToggle(
                       value: state.settings.enabled,
                       onChanged: (v) => context.read<ReminderCubit>().toggle(v),
@@ -52,7 +58,7 @@ class ReminderScreen extends StatelessWidget {
 
                     const SizedBox(height: 24),
 
-                    //  Frequency Selector
+                    /// Frequency Selector
                     FrequencySelector(
                       selected: state.settings.frequencyMinutes,
                       onSelect: (v) =>
@@ -61,7 +67,7 @@ class ReminderScreen extends StatelessWidget {
 
                     const SizedBox(height: 24),
 
-                    //  Active Hours Card
+                    /// Active Hours
                     ActiveHoursCard(
                       wake: state.settings.wakeTime,
                       sleep: state.settings.sleepTime,
@@ -69,12 +75,12 @@ class ReminderScreen extends StatelessWidget {
 
                     const SizedBox(height: 32),
 
-                    //  Sound Selector
+                    /// Sound Selector
                     const SoundSelector(),
 
                     const SizedBox(height: 32),
 
-                    //  Test Notification Button
+                    /// Test Notification Button
                     const TestNotificationButton(),
 
                     const SizedBox(height: 40),

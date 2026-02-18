@@ -17,15 +17,20 @@ class HydrationCubit extends Cubit<HydrationState> {
     loadToday();
   }
 
-  //   update goal dynamically
-  void updateGoal(double newGoal) {
+  /// Update daily goal dynamically
+  Future<void> updateGoal(double newGoal) async {
     if (newGoal == state.dailyGoalLiters) return;
 
     final newTotalCups = (newGoal * 1000 / 250).round();
 
     emit(state.copyWith(dailyGoalLiters: newGoal, totalCups: newTotalCups));
+
+    if (state.consumedCups >= newTotalCups) {
+      await NotificationService.cancelAll();
+    }
   }
 
+  /// Load today's hydration progress
   Future<void> loadToday() async {
     final cups = await repository.getTodayCups();
 
@@ -37,6 +42,7 @@ class HydrationCubit extends Cubit<HydrationState> {
     }
   }
 
+  /// Add one cup
   Future<void> addCup() async {
     if (state.consumedCups >= state.totalCups) return;
 
