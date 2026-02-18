@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../data/hydration_repository.dart';
 import 'hydration_state.dart';
+import 'package:hydrowflow/core/notifications/notification_service.dart';
 
 class HydrationCubit extends Cubit<HydrationState> {
   final HydrationRepository repository;
@@ -16,25 +17,44 @@ class HydrationCubit extends Cubit<HydrationState> {
     loadToday();
   }
 
-  //   update goal dynamically
-  void updateGoal(double newGoal) {
+  /// Update daily goal dynamically
+  Future<void> updateGoal(double newGoal) async {
     if (newGoal == state.dailyGoalLiters) return;
 
     final newTotalCups = (newGoal * 1000 / 250).round();
 
     emit(state.copyWith(dailyGoalLiters: newGoal, totalCups: newTotalCups));
+
+    if (state.consumedCups >= newTotalCups) {
+      await NotificationService.cancelAll();
+    }
   }
 
+  /// Load today's hydration progress
   Future<void> loadToday() async {
     final cups = await repository.getTodayCups();
+
     emit(state.copyWith(consumedCups: cups));
+
+    // Stop reminders if goal already reached
+    if (cups >= state.totalCups) {
+      await NotificationService.cancelAll();
+    }
   }
 
+  /// Add one cup
   Future<void> addCup() async {
     if (state.consumedCups >= state.totalCups) return;
 
     await repository.addCup();
 
-    emit(state.copyWith(consumedCups: state.consumedCups + 1));
+    final newConsumed = state.consumedCups + 1;
+
+    emit(state.copyWith(consumedCups: newConsumed));
+
+    // Stop reminders if goal reached
+    if (newConsumed >= state.totalCups) {
+      await NotificationService.cancelAll();
+    }
   }
 }

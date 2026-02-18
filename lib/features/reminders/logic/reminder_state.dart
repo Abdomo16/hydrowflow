@@ -14,7 +14,7 @@ class ReminderState {
         frequencyMinutes: 60,
         wakeTime: '08:00',
         sleepTime: '22:30',
-        sound: 'water',
+        sound: 'ultra_minimal_tech_pulse',
       ),
     );
   }

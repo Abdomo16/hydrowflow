@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:url_launcher/url_launcher.dart';
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _notifications =
@@ -12,48 +12,46 @@ class NotificationService {
   static const String _channelDescription =
       'Reminds you to drink water during the day';
 
-  /// INIT
+  static final Set<String> _createdChannels = {};
+
   static Future<void> init() async {
-    //  Initialize timezones
     tz.initializeTimeZones();
+
+    final String timeZone = await FlutterNativeTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(timeZone)); // timezone
 
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
     );
 
-    const settings = InitializationSettings(android: androidSettings);
+    const iosSettings = DarwinInitializationSettings();
+
+    const settings = InitializationSettings(
+      android: androidSettings,
+      iOS: iosSettings,
+    );
 
     await _notifications.initialize(settings);
 
-    final androidPlugin = _notifications
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >();
+    if (Platform.isAndroid) {
+      final androidPlugin = _notifications
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
 
-    if (androidPlugin == null) return;
+      await androidPlugin?.requestNotificationsPermission();
+      await androidPlugin?.requestExactAlarmsPermission();
+    }
 
-    // Android 13+ notification permission
-    await androidPlugin.requestNotificationsPermission();
-
-    //  Android 12+ exact alarms (no dialog on Android 13)
-    await androidPlugin.requestExactAlarmsPermission();
-  }
-
-  /// OPEN EXACT ALARM SETTINGS (ANDROID 12 / 13)
-  static Future<void> openExactAlarmSettings() async {
-    if (!Platform.isAndroid) return;
-
-    // Official Android intent
-    const intent = 'android.settings.REQUEST_SCHEDULE_EXACT_ALARM';
-
-    final uri = Uri.parse(intent);
-
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (Platform.isIOS) {
+      await _notifications
+          .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin
+          >()
+          ?.requestPermissions(alert: true, badge: true, sound: true);
     }
   }
 
-  /// CREATE CHANNEL PER SOUND
   static Future<void> _createChannelForSound(String sound) async {
     final androidPlugin = _notifications
         .resolvePlatformSpecificImplementation<
@@ -62,21 +60,24 @@ class NotificationService {
 
     if (androidPlugin == null) return;
 
-    final channelId = 'hydration_${sound}_v2';
+    final safeSound = sound.isEmpty ? "default" : sound;
+    final channelId = 'hydration_$safeSound';
+
+    if (_createdChannels.contains(channelId)) return;
 
     final channel = AndroidNotificationChannel(
       channelId,
-      '$_baseChannelName ($sound)',
+      '$_baseChannelName ($safeSound)',
       description: _channelDescription,
       importance: Importance.max,
       playSound: true,
-      sound: RawResourceAndroidNotificationSound(sound),
+      sound: RawResourceAndroidNotificationSound(safeSound),
     );
 
     await androidPlugin.createNotificationChannel(channel);
+    _createdChannels.add(channelId);
   }
 
-  /// SCHEDULE NOTIFICATION
   static Future<void> schedule({
     required int id,
     required DateTime dateTime,
@@ -86,6 +87,8 @@ class NotificationService {
   }) async {
     await _createChannelForSound(sound);
 
+    final safeSound = sound.isEmpty ? "default" : sound;
+
     await _notifications.zonedSchedule(
       id,
       title,
@@ -93,13 +96,18 @@ class NotificationService {
       tz.TZDateTime.from(dateTime, tz.local),
       NotificationDetails(
         android: AndroidNotificationDetails(
-          'hydration_${sound}_v2',
-          '$_baseChannelName ($sound)',
+          'hydration_$safeSound',
+          '$_baseChannelName ($safeSound)',
           channelDescription: _channelDescription,
           importance: Importance.max,
           priority: Priority.high,
           playSound: true,
-          sound: RawResourceAndroidNotificationSound(sound),
+          sound: RawResourceAndroidNotificationSound(safeSound),
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentSound: true,
+          sound: safeSound == "default" ? null : '$safeSound.aiff',
         ),
       ),
       androidAllowWhileIdle: true,
