@@ -22,53 +22,51 @@ class ActivityTileWidget extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeInOut,
-      height: 85,
+      height: 73,
       decoration: BoxDecoration(
         color: selected ? const Color(0xFF1E3A5F) : const Color(0xFF16202A),
-
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(19),
         border: Border.all(
           color: selected ? const Color(0xFF3A8DFF) : Colors.transparent,
-          width: 1.5,
+          width: 1.3,
         ),
         boxShadow: selected
             ? [
                 BoxShadow(
-                  color: const Color(0xFF3A8DFF).withOpacity(0.15),
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
+                  color: const Color(0xFF3A8DFF).withOpacity(0.12),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
                 ),
               ]
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 10,
-                  offset: const Offset(0, 6),
+                  color: Colors.black.withOpacity(0.18),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
                 ),
               ],
       ),
-
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(18),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 17),
             child: Row(
               children: [
                 Container(
-                  height: 50,
-                  width: 50,
+                  height: 44,
+                  width: 40,
                   decoration: BoxDecoration(
                     color: selected
                         ? Colors.white.withOpacity(0.2)
                         : Colors.white.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icon, size: 26, color: Colors.white),
+                  child: Icon(icon, size: 23, color: Colors.white),
                 ),
-                const SizedBox(width: 18),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -77,16 +75,16 @@ class ActivityTileWidget extends StatelessWidget {
                       Text(
                         title,
                         style: const TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 3),
                       Text(
                         getSubtitle(),
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 12,
                           color: Colors.white.withOpacity(0.7),
                         ),
                       ),
@@ -97,6 +95,7 @@ class ActivityTileWidget extends StatelessWidget {
                   selected
                       ? Icons.radio_button_checked
                       : Icons.radio_button_off,
+                  size: 20,
                   color: Colors.white,
                 ),
               ],
