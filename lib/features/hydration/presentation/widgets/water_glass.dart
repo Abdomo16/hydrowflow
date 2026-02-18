@@ -9,6 +9,8 @@ class WaterGlass extends StatelessWidget {
   Widget build(BuildContext context) {
     const double glassHeight = 250;
 
+    final clampedProgress = progress.clamp(0.0, 1.0);
+
     return Container(
       height: glassHeight,
       width: 170,
@@ -30,32 +32,39 @@ class WaterGlass extends StatelessWidget {
               child: Stack(
                 alignment: Alignment.bottomCenter,
                 children: [
-                  FractionallySizedBox(
-                    heightFactor: progress.clamp(0.0, 1.0),
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Color(0xFF7DD3FC),
-                            Color(0xFF38BDF8),
-                            Color(0xFF0284C7),
-                          ],
-                        ),
+                  ///  Animated Water Level
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 600),
+                    curve: Curves.easeInOut,
+                    height: clampedProgress * (glassHeight - 12),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color(0xFF7DD3FC),
+                          Color(0xFF38BDF8),
+                          Color(0xFF0284C7),
+                        ],
                       ),
                     ),
                   ),
 
-                  /// Water surface
-                  Positioned(
-                    bottom:
-                        (progress.clamp(0.0, 1.0) * (glassHeight - 23.1)) - 4,
+                  /// Animated Water Surface
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 600),
+                    curve: Curves.easeInOut,
+                    bottom: clampedProgress == 0
+                        ? 0
+                        : clampedProgress * (glassHeight - 12),
                     left: 0,
                     right: 0,
                     child: Container(
-                      height: 12,
-                      color: Colors.white.withOpacity(0.35),
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.35),
+                        borderRadius: BorderRadius.circular(1),
+                      ),
                     ),
                   ),
                 ],
