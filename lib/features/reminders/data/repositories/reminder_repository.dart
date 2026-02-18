@@ -14,7 +14,7 @@ class ReminderRepository {
         frequencyMinutes: 60,
         wakeTime: '08:00',
         sleepTime: '22:30',
-        sound: 'electric_water_flow',
+        sound: 'ultra_minimal_tech_pulse',
       );
 
       await saveSettings(defaultSettings);
@@ -28,7 +28,7 @@ class ReminderRepository {
       frequencyMinutes: row['frequency_minutes'] as int,
       wakeTime: row['wake_time'] as String,
       sleepTime: row['sleep_time'] as String,
-      sound: row['sound'] as String? ?? 'electric_water_flow',
+      sound: row['sound'] as String? ?? 'ultra_minimal_tech_pulse',
     );
   }
 
