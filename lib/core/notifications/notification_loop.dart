@@ -6,12 +6,13 @@ class NotificationLoop {
     required String wake,
     required String sleep,
     required String sound,
+    int daysAhead = 14,
   }) async {
     await NotificationService.cancelAll();
 
     final now = DateTime.now();
 
-    final wakeTime = _combine(now, wake);
+    DateTime wakeTime = _combine(now, wake);
     DateTime sleepTime = _combine(now, sleep);
 
     // Handle sleep after midnight
@@ -19,25 +20,52 @@ class NotificationLoop {
       sleepTime = sleepTime.add(const Duration(days: 1));
     }
 
-    // If now is before wake → schedule at wake
-    DateTime nextTime = now.isBefore(wakeTime) ? wakeTime : now;
-
-    // Align next reminder to frequency
-    final remainder = nextTime.minute % frequencyMinutes;
-    if (remainder != 0) {
-      nextTime = nextTime.add(Duration(minutes: frequencyMinutes - remainder));
+    // If today finished  move to tomorrow
+    if (now.isAfter(sleepTime)) {
+      wakeTime = wakeTime.add(const Duration(days: 1));
+      sleepTime = sleepTime.add(const Duration(days: 1));
     }
 
-    // If next reminder is after sleep → do nothing
-    if (nextTime.isAfter(sleepTime)) return;
+    int id = 0; // Safe simple ID system
+    final List<Future> futures = [];
 
-    await NotificationService.schedule(
-      id: 1000, // single stable ID
-      dateTime: nextTime,
-      title: 'Drink Water 💧',
-      body: 'Stay hydrated!',
-      sound: sound,
-    );
+    for (int day = 0; day < daysAhead; day++) {
+      final dayWake = wakeTime.add(Duration(days: day));
+      final daySleep = sleepTime.add(Duration(days: day));
+
+      DateTime nextTime = dayWake;
+
+      if (day == 0) {
+        while (nextTime.isBefore(now)) {
+          nextTime = nextTime.add(Duration(minutes: frequencyMinutes));
+        }
+      }
+
+      int dailyCount = 0;
+      const maxPerDay = 40;
+
+      while (nextTime.isBefore(daySleep)) {
+        if (dailyCount >= maxPerDay) break;
+
+        futures.add(
+          NotificationService.schedule(
+            id: id,
+            dateTime: nextTime,
+            title: 'Drink Water 💧',
+            body: 'Stay hydrated!',
+            sound: sound,
+          ),
+        );
+
+        id++;
+        dailyCount++;
+        nextTime = nextTime.add(Duration(minutes: frequencyMinutes));
+      }
+    }
+
+    try {
+      await Future.wait(futures, eagerError: false);
+    } catch (_) {}
   }
 
   static DateTime _combine(DateTime base, String time) {
