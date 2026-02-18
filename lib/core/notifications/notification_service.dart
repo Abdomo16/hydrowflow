@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -14,11 +13,10 @@ class NotificationService {
 
   static final Set<String> _createdChannels = {};
 
+  /// Initialize notifications
   static Future<void> init() async {
+    // Initialize timezone database
     tz.initializeTimeZones();
-
-    final String timeZone = await FlutterNativeTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(timeZone)); // timezone
 
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
@@ -52,6 +50,7 @@ class NotificationService {
     }
   }
 
+  /// Create Android channel dynamically per sound
   static Future<void> _createChannelForSound(String sound) async {
     final androidPlugin = _notifications
         .resolvePlatformSpecificImplementation<
@@ -71,13 +70,16 @@ class NotificationService {
       description: _channelDescription,
       importance: Importance.max,
       playSound: true,
-      sound: RawResourceAndroidNotificationSound(safeSound),
+      sound: safeSound == "default"
+          ? null
+          : RawResourceAndroidNotificationSound(safeSound),
     );
 
     await androidPlugin.createNotificationChannel(channel);
     _createdChannels.add(channelId);
   }
 
+  /// Schedule notification
   static Future<void> schedule({
     required int id,
     required DateTime dateTime,
@@ -102,7 +104,9 @@ class NotificationService {
           importance: Importance.max,
           priority: Priority.high,
           playSound: true,
-          sound: RawResourceAndroidNotificationSound(safeSound),
+          sound: safeSound == "default"
+              ? null
+              : RawResourceAndroidNotificationSound(safeSound),
         ),
         iOS: DarwinNotificationDetails(
           presentAlert: true,
@@ -117,6 +121,7 @@ class NotificationService {
     );
   }
 
+  /// Cancel all notifications
   static Future<void> cancelAll() async {
     await _notifications.cancelAll();
   }
