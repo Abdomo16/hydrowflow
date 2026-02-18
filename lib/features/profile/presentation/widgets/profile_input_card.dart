@@ -13,7 +13,6 @@ class ProfileInputCard extends StatelessWidget {
     required this.unit,
     required this.onChanged,
   });
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -23,17 +22,17 @@ class ProfileInputCard extends StatelessWidget {
           label,
           style: const TextStyle(
             color: Colors.white70,
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Container(
-          height: 65,
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          height: 55, // was 65
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: const Color(0xFF1B2633),
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(color: const Color(0xFF3A8DFF).withOpacity(0.2)),
           ),
           child: Row(
@@ -46,16 +45,19 @@ class ProfileInputCard extends StatelessWidget {
                   ),
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
-                  decoration: const InputDecoration(border: InputBorder.none),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    isCollapsed: true,
+                  ),
                   onChanged: onChanged,
                 ),
               ),
               Text(
                 unit,
-                style: const TextStyle(color: Colors.white54, fontSize: 16),
+                style: const TextStyle(color: Colors.white54, fontSize: 15),
               ),
             ],
           ),
