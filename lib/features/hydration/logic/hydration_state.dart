@@ -14,6 +14,15 @@ class HydrationState {
     return consumedCups / totalCups;
   }
 
+  String get motivationMessage {
+    final p = progress;
+
+    if (p == 0) return "Let's start hydrating!";
+    if (p < 0.5) return "Good start! Keep going 💧";
+    if (p < 1) return "Almost there! 🚀";
+    return "Goal reached! 🎉";
+  }
+
   HydrationState copyWith({
     double? dailyGoalLiters,
     int? totalCups,

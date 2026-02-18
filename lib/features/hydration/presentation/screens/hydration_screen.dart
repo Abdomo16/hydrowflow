@@ -147,10 +147,9 @@ class HydrationScreen extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 8),
-
-                const Text(
-                  'Almost halfway there! Keep it up.',
-                  style: TextStyle(color: Colors.white54, fontSize: 13),
+                Text(
+                  state.motivationMessage,
+                  style: const TextStyle(color: Colors.white54, fontSize: 13),
                 ),
 
                 const SizedBox(height: 40),
