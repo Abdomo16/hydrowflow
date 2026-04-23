@@ -14,7 +14,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 4, // ⬅️ زودنا الفيرجن
+      version: 4,
       onCreate: (db, _) async {
         await _createTables(db);
       },
