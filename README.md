@@ -1,16 +1,28 @@
-# hydrowflow
+# HydroFlow
 
-A new Flutter project.
+HydroFlow is a Flutter app that helps users stay consistent with their daily water intake by setting personalized hydration goals and providing simple tracking.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- Personalized daily goals based on weight and activity level  
+- Simple cup-by-cup water tracking  
+- Scheduled reminders using local notifications  
+- Daily statistics and streak tracking  
+- Clean and intuitive user interface  
 
-A few resources to get you started if this is your first Flutter project:
+## Tech Stack
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- Flutter  
+- Dart  
+- Cubit (state management)  
+- Local notifications  
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Architecture
+
+The app uses Cubit for predictable and maintainable state management, keeping the codebase simple and scalable.
+
+## Goal
+
+HydroFlow was built to solve a common problem: people often don’t drink enough water, not because they forget, but because they don’t track it consistently.
+
+The focus of the app is to make hydration tracking simple and sustainable.
