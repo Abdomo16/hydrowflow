@@ -30,9 +30,17 @@ class HydrationRepository {
 
     await db.rawInsert(
       '''
-      INSERT INTO daily_hydration (date, consumed_cups)
-      VALUES (?, 1)
-      ON CONFLICT(date) DO UPDATE SET consumed_cups = consumed_cups + 1
+      INSERT OR IGNORE INTO daily_hydration (date, consumed_cups)
+      VALUES (?, 0)
+      ''',
+      [today],
+    );
+
+    await db.rawUpdate(
+      '''
+      UPDATE daily_hydration
+      SET consumed_cups = consumed_cups + 1
+      WHERE date = ?
       ''',
       [today],
     );
