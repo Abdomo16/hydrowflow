@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:hydrowflow/core/app/logic/app_cubit.dart';
-import 'package:hydrowflow/features/profile/presentation/screens/profile_screen.dart';
+import 'package:hydrowflow/core/di/service_locator.dart';
 
-import '../../features/hydration/presentation/screens/hydration_screen.dart';
-import '../../features/hydration/logic/hydration_cubit.dart';
 import '../../features/hydration/data/hydration_repository.dart';
+import '../../features/hydration/logic/hydration_cubit.dart';
+import '../../features/hydration/presentation/screens/hydration_screen.dart';
 
 import '../../features/reminders/presentation/screens/reminder_screen.dart';
-import '../../features/statistics/presentation/screens/statistics_screen.dart';
-import '../../features/statistics/logic/statistics_cubit.dart';
+import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../features/statistics/data/repositories/statistics_repository.dart';
+import '../../features/statistics/logic/statistics_cubit.dart';
+import '../../features/statistics/presentation/screens/statistics_screen.dart';
 
 import 'bottom_nav_bar.dart';
 import 'logic/navigation_cubit.dart';
@@ -45,13 +46,13 @@ class _MainNavigationState extends State<MainNavigation> {
         BlocProvider(
           create: (_) => HydrationCubit(
             dailyGoalLiters: widget.dailyGoal,
-            repository: HydrationRepository(),
+            repository: locator<HydrationRepository>(),
           ),
         ),
 
         BlocProvider(
           create: (_) => StatisticsCubit(
-            StatisticsRepository(),
+            locator<StatisticsRepository>(),
             (widget.dailyGoal * 1000 / 250).round(),
           ),
         ),
@@ -75,7 +76,7 @@ class _MainNavigationState extends State<MainNavigation> {
               const HydrationScreen(),
               const StatisticsScreen(),
               const ReminderScreen(),
-              const ProfileScreen(),
+              const SettingsScreen(),
             ];
 
             return Scaffold(

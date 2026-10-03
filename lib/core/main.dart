@@ -1,10 +1,27 @@
+import 'dart:developer';
+
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+import 'package:hydrowflow/core/di/service_locator.dart';
 import 'package:hydrowflow/database/app_database.dart';
 import 'package:hydrowflow/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:hydrowflow/core/navigation/main_navigation.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  setupLocator();
+
+  try {
+    await Firebase.initializeApp();
+    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+  } catch (e, stack) {
+    log('Firebase initialization skipped or failed: $e', stackTrace: stack);
+  }
+
   runApp(const MyApp());
 }
 
@@ -49,7 +66,7 @@ class _AppStarterState extends State<AppStarter> {
     if (result.isEmpty || result.first['onboarding_done'] != 1) {
       setState(() => onboardingDone = false);
     } else {
-      dailyGoal = result.first['daily_goal'] as double;
+      dailyGoal = (result.first['daily_goal'] as num).toDouble();
       setState(() => onboardingDone = true);
     }
   }

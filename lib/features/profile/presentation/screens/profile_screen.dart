@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrowflow/core/app/logic/app_cubit.dart';
+import 'package:hydrowflow/core/di/service_locator.dart';
 import 'package:hydrowflow/features/onboarding/data/repositories/user_profile_repository.dart';
 
 import '../../logic/profile_cubit.dart';
@@ -49,7 +50,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => ProfileCubit(UserProfileRepository())..loadProfile(),
+      create: (_) => ProfileCubit(locator<UserProfileRepository>())..loadProfile(),
       child: Scaffold(
         backgroundColor: const Color(0xFF0E1621),
         body: SafeArea(

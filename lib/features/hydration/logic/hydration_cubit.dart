@@ -1,71 +1,95 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrowflow/core/notifications/notification_service.dart';
 import '../data/hydration_repository.dart';
 import 'hydration_state.dart';
-import 'package:hydrowflow/core/notifications/notification_service.dart';
 
 class HydrationCubit extends Cubit<HydrationState> {
   final HydrationRepository repository;
 
-  static const int cupSizeMl = 250;
+  static const int defaultCupSizeMl = 250;
 
   HydrationCubit({required double dailyGoalLiters, required this.repository})
-    : super(
-        HydrationState(
-          dailyGoalLiters: dailyGoalLiters,
-          totalCups: (dailyGoalLiters * 1000 / cupSizeMl).round(),
-          consumedCups: 0,
-        ),
-      ) {
+    : super(HydrationState.initial(dailyGoalLiters)) {
     loadToday();
   }
 
-  /// Update daily goal dynamically
   Future<void> updateGoal(double newGoal) async {
     if (newGoal == state.dailyGoalLiters) return;
 
-    final newTotalCups = (newGoal * 1000 / cupSizeMl).round();
+    final newTotalCups = (newGoal * 1000 / defaultCupSizeMl).round();
 
-    final updatedState = state.copyWith(
-      dailyGoalLiters: newGoal,
-      totalCups: newTotalCups,
+    emit(
+      state.copyWith(
+        dailyGoalLiters: newGoal,
+        totalCups: newTotalCups,
+      ),
     );
 
-    emit(updatedState);
-
-    // Stop reminders if goal already reached after update
-    if (updatedState.consumedCups >= updatedState.totalCups) {
-      await NotificationService.cancelAll();
-    }
+    await _maybeCancelNotifications();
   }
 
-  /// Load today's hydration progress
   Future<void> loadToday() async {
-    final cups = await repository.getTodayCups();
+    emit(state.copyWith(loading: true, error: null));
 
-    final updatedState = state.copyWith(consumedCups: cups);
+    try {
+      final cups = await repository.getTodayCups();
+      final ml = await repository.getTodayMl();
+      final logs = await repository.getTodayLogs();
 
-    emit(updatedState);
+      emit(
+        state.copyWith(
+          consumedCups: cups,
+          consumedMl: ml,
+          logs: logs,
+          loading: false,
+        ),
+      );
 
-    // Stop reminders if goal already reached
-    if (updatedState.consumedCups >= updatedState.totalCups) {
-      await NotificationService.cancelAll();
+      await _maybeCancelNotifications();
+    } catch (e) {
+      emit(state.copyWith(loading: false, error: 'Failed to load hydration data'));
     }
   }
 
-  /// Add one cup
-  Future<void> addCup() async {
-    if (state.consumedCups >= state.totalCups) return;
+  Future<void> addCup() => addDrink(defaultCupSizeMl);
 
-    await repository.addCup();
+  Future<void> addDrink(int amountMl) async {
+    if (amountMl <= 0) return;
 
-    final newConsumed = state.consumedCups + 1;
+    emit(state.copyWith(loading: true, error: null));
 
-    final updatedState = state.copyWith(consumedCups: newConsumed);
+    try {
+      await repository.addDrink(amountMl);
+      await loadToday();
+    } catch (e) {
+      emit(state.copyWith(loading: false, error: 'Failed to add drink'));
+    }
+  }
 
-    emit(updatedState);
+  Future<void> deleteLog(int id) async {
+    emit(state.copyWith(loading: true, error: null));
 
-    // Stop reminders if goal reached
-    if (updatedState.consumedCups >= updatedState.totalCups) {
+    try {
+      await repository.deleteLog(id);
+      await loadToday();
+    } catch (e) {
+      emit(state.copyWith(loading: false, error: 'Failed to delete log'));
+    }
+  }
+
+  Future<void> undoLast() async {
+    emit(state.copyWith(loading: true, error: null));
+
+    try {
+      await repository.undoLast();
+      await loadToday();
+    } catch (e) {
+      emit(state.copyWith(loading: false, error: 'Failed to undo'));
+    }
+  }
+
+  Future<void> _maybeCancelNotifications() async {
+    if (state.goalReached) {
       await NotificationService.cancelAll();
     }
   }

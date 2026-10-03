@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:hydrowflow/core/di/service_locator.dart';
 import 'package:hydrowflow/features/reminders/data/repositories/reminder_repository.dart';
 import 'package:hydrowflow/features/reminders/logic/reminder_cubit.dart';
 import 'package:hydrowflow/features/reminders/logic/reminder_state.dart';
@@ -21,9 +22,9 @@ class ReminderScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => ReminderCubit(
-        ReminderRepository(),
-        HydrationRepository(),
-        UserProfileRepository(),
+        locator<ReminderRepository>(),
+        locator<HydrationRepository>(),
+        locator<UserProfileRepository>(),
       ),
       child: Scaffold(
         backgroundColor: const Color(0xFF0E1621),

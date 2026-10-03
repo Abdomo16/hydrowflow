@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrowflow/features/hydration/presentation/widgets/add_cup_button.dart';
+import 'package:hydrowflow/features/hydration/presentation/widgets/today_log_list.dart';
 import 'package:hydrowflow/features/hydration/presentation/widgets/water_glass.dart';
 
 import '../../logic/hydration_cubit.dart';
@@ -27,9 +28,20 @@ class HydrationScreen extends StatelessWidget {
         ),
       ),
 
-      body: BlocBuilder<HydrationCubit, HydrationState>(
+      body: BlocConsumer<HydrationCubit, HydrationState>(
+        listener: (context, state) {
+          if (state.error != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.error!)),
+            );
+          }
+        },
         builder: (context, state) {
-          return Padding(
+          if (state.loading && state.logs.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          return SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               children: [
@@ -58,7 +70,7 @@ class HydrationScreen extends StatelessWidget {
                 const SizedBox(height: 6),
 
                 Text(
-                  '= ${state.totalCups} cups',
+                  '= ${state.totalCups} cups (${state.consumedMl} ml logged)',
                   style: const TextStyle(color: Colors.white54, fontSize: 14),
                 ),
 
@@ -125,9 +137,18 @@ class HydrationScreen extends StatelessWidget {
                   style: const TextStyle(color: Colors.white54, fontSize: 13),
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 32),
 
                 const AddCupButton(),
+
+                const SizedBox(height: 32),
+
+                TodayLogList(
+                  logs: state.logs,
+                  onDelete: context.read<HydrationCubit>().deleteLog,
+                ),
+
+                const SizedBox(height: 24),
               ],
             ),
           );
