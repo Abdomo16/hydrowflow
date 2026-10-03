@@ -28,13 +28,11 @@ class HydrationRepository {
     final db = await AppDatabase.database;
     final today = _today();
 
-    await getTodayCups();
-
-    await db.rawUpdate(
+    await db.rawInsert(
       '''
-      UPDATE daily_hydration
-      SET consumed_cups = consumed_cups + 1
-      WHERE date = ?
+      INSERT INTO daily_hydration (date, consumed_cups)
+      VALUES (?, 1)
+      ON CONFLICT(date) DO UPDATE SET consumed_cups = consumed_cups + 1
       ''',
       [today],
     );

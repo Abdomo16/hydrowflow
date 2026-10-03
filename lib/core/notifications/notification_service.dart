@@ -108,13 +108,11 @@ class NotificationService {
               ? null
               : RawResourceAndroidNotificationSound(safeSound),
         ),
-        iOS: DarwinNotificationDetails(
+        iOS: const DarwinNotificationDetails(
           presentAlert: true,
           presentSound: true,
-          sound: safeSound == "default" ? null : '$safeSound.aiff',
         ),
       ),
-      androidAllowWhileIdle: true,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,

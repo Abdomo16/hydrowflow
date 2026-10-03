@@ -40,7 +40,7 @@ class FrequencySelector extends StatelessWidget {
                     : 'Every 2 hours',
               ),
               selected: isSelected,
-              selectedColor: Colors.blue.withOpacity(0.9),
+              selectedColor: Colors.blue.withValues(alpha: 0.9),
               backgroundColor: const Color(0xFF1E293B),
 
               shape: RoundedRectangleBorder(
@@ -48,7 +48,7 @@ class FrequencySelector extends StatelessWidget {
                 side: BorderSide(
                   color: isSelected
                       ? Colors.blue
-                      : Colors.white.withOpacity(0.15),
+                      : Colors.white.withValues(alpha: 0.15),
                   width: 3,
                 ),
               ),

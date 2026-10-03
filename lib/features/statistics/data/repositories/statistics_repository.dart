@@ -44,33 +44,76 @@ class StatisticsRepository {
     }
   }
 
-  /// Returns cups for last recorded 7 days (including today if exists)
+  /// Returns cups for the current calendar week (Mon-Sun), aligned to weekday labels.
   Future<List<int>> getWeeklyCups() async {
     try {
       final db = await AppDatabase.database;
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final weekStart = today.subtract(Duration(days: today.weekday - 1));
+      final weekStartStr = _formatDate(weekStart);
 
-      final rows = await db.rawQuery('''
+      final rows = await db.rawQuery(
+        '''
         SELECT date, consumed_cups
         FROM daily_hydration
-        WHERE date >= date('now', '-6 days')
+        WHERE date >= ?
         ORDER BY date ASC
-      ''');
-
-      if (rows.isEmpty) return [];
-
-      if (rows.length == 1) {
-        return [(rows.first['consumed_cups'] as int)];
-      }
+        ''',
+        [weekStartStr],
+      );
 
       final cups = List<int>.filled(7, 0);
-      for (int i = 0; i < rows.length && i < 7; i++) {
-        cups[i] = rows[i]['consumed_cups'] as int;
+      for (final row in rows) {
+        final rowDate = DateTime.parse(row['date'] as String);
+        final index = rowDate.weekday - 1; // Monday = 0, Sunday = 6
+        if (index >= 0 && index < 7) {
+          cups[index] = row['consumed_cups'] as int;
+        }
       }
 
       return cups;
     } catch (e) {
-      return [];
+      return List<int>.filled(7, 0);
     }
+  }
+
+  /// Returns cups grouped into 4 weekly buckets (W1 oldest, W4 most recent).
+  Future<List<int>> getMonthlyCups() async {
+    try {
+      final db = await AppDatabase.database;
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+
+      final rows = await db.rawQuery('''
+        SELECT date, consumed_cups
+        FROM daily_hydration
+        WHERE date >= date('now', '-27 days')
+        ORDER BY date ASC
+      ''');
+
+      final dataMap = <String, int>{};
+      for (final row in rows) {
+        dataMap[row['date'] as String] = row['consumed_cups'] as int;
+      }
+
+      final cups = List<int>.filled(4, 0);
+      for (int day = 0; day < 28; day++) {
+        final date = today.subtract(Duration(days: 27 - day));
+        final dateStr = _formatDate(date);
+        final dayCups = dataMap[dateStr] ?? 0;
+        final weekIndex = day ~/ 7;
+        cups[weekIndex] += dayCups;
+      }
+
+      return cups;
+    } catch (e) {
+      return List<int>.filled(4, 0);
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 
   /// MONTHLY STATS

@@ -20,6 +20,8 @@ class ProfileCubit extends Cubit<ProfileState> {
     if (data != null) {
       final profile = ProfileModel.fromMap(data);
       emit(state.copyWith(profile: profile, isLoading: false));
+    } else {
+      emit(state.copyWith(isLoading: false));
     }
   }
 

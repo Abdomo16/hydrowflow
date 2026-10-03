@@ -15,12 +15,13 @@ class ProfileModel {
 
   factory ProfileModel.fromMap(Map<String, dynamic> map) {
     return ProfileModel(
-      height: map['height'],
-      weight: map['weight'],
+      height: (map['height'] as num).toDouble(),
+      weight: (map['weight'] as num).toDouble(),
       activityLevel: ActivityLevel.values.firstWhere(
         (e) => e.name == map['activity_level'],
+        orElse: () => ActivityLevel.medium,
       ),
-      dailyGoal: map['daily_goal'],
+      dailyGoal: (map['daily_goal'] as num).toDouble(),
     );
   }
 }

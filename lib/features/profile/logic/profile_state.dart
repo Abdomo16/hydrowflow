@@ -23,7 +23,7 @@ class ProfileState {
     return ProfileState(
       profile: profile ?? this.profile,
       isLoading: isLoading ?? this.isLoading,
-      isSaved: isSaved ?? false,
+      isSaved: isSaved ?? this.isSaved,
     );
   }
 }

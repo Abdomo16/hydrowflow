@@ -62,7 +62,7 @@ class WaterGlass extends StatelessWidget {
                     child: Container(
                       height: 10,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.35),
+                        color: Colors.white.withValues(alpha: 0.35),
                         borderRadius: BorderRadius.circular(1),
                       ),
                     ),
@@ -78,7 +78,7 @@ class WaterGlass extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(43),
               border: Border.all(
-                color: Colors.white.withOpacity(0.08),
+                color: Colors.white.withValues(alpha: 0.08),
                 width: 2,
               ),
             ),
@@ -92,7 +92,7 @@ class WaterGlass extends StatelessWidget {
               width: 6,
               height: 80,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.06),
+                color: Colors.white.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(6),
               ),
             ),

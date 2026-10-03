@@ -70,13 +70,22 @@ class NotificationLoop {
 
   static DateTime _combine(DateTime base, String time) {
     final parts = time.split(':');
+    if (parts.length != 2) {
+      throw FormatException('Invalid time format: $time');
+    }
 
-    return DateTime(
-      base.year,
-      base.month,
-      base.day,
-      int.parse(parts[0]),
-      int.parse(parts[1]),
-    );
+    final hour = int.tryParse(parts[0]);
+    final minute = int.tryParse(parts[1]);
+
+    if (hour == null ||
+        minute == null ||
+        hour < 0 ||
+        hour > 23 ||
+        minute < 0 ||
+        minute > 59) {
+      throw FormatException('Invalid time value: $time');
+    }
+
+    return DateTime(base.year, base.month, base.day, hour, minute);
   }
 }

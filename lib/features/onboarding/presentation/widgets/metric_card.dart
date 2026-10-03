@@ -17,6 +17,7 @@ class MetricCard extends StatefulWidget {
 
 class _MetricCardState extends State<MetricCard> {
   late final TextEditingController _controller;
+  String? _errorText;
 
   @override
   void initState() {
@@ -28,6 +29,24 @@ class _MetricCardState extends State<MetricCard> {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  bool get _isHeight => widget.type == MetricType.height;
+
+  String? _validate(double? value) {
+    if (value == null) return null;
+
+    if (_isHeight) {
+      if (value < 100 || value > 250) {
+        return 'Height must be 100-250 cm';
+      }
+    } else {
+      if (value < 30 || value > 250) {
+        return 'Weight must be 30-250 kg';
+      }
+    }
+
+    return null;
   }
 
   @override
@@ -62,9 +81,9 @@ class _MetricCardState extends State<MetricCard> {
             decoration: InputDecoration(
               filled: true,
               fillColor: const Color(0xFF1E2533),
-              hintText: widget.type == MetricType.height ? '180' : '75',
+              hintText: _isHeight ? '180' : '75',
               hintStyle: TextStyle(
-                color: Colors.white.withOpacity(0.35),
+                color: Colors.white.withValues(alpha: 0.35),
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
@@ -76,18 +95,24 @@ class _MetricCardState extends State<MetricCard> {
                 borderRadius: BorderRadius.circular(24),
                 borderSide: BorderSide.none,
               ),
+              errorText: _errorText,
+              errorStyle: const TextStyle(fontSize: 10),
             ),
             onChanged: (value) {
               final parsed = double.tryParse(value);
-              if (parsed == null || parsed <= 0) return;
+              if (parsed == null || parsed <= 0) {
+                setState(() => _errorText = null);
+                return;
+              }
 
-              if (widget.type == MetricType.height) {
-                // realistic height range
-                if (parsed < 100 || parsed > 250) return;
+              final error = _validate(parsed);
+              setState(() => _errorText = error);
+
+              if (error != null) return;
+
+              if (_isHeight) {
                 cubit.updateHeight(parsed);
               } else {
-                // realistic weight range
-                if (parsed < 30 || parsed > 250) return;
                 cubit.updateWeight(parsed);
               }
             },

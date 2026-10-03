@@ -17,19 +17,6 @@ class HydrationScreen extends StatelessWidget {
         backgroundColor: const Color(0xFF0E1621),
         elevation: 0,
         centerTitle: true,
-
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 12),
-          child: IconButton(
-            icon: const Icon(
-              Icons.account_circle_outlined,
-              color: Colors.white,
-              size: 25,
-            ),
-            onPressed: () {},
-          ),
-        ),
-
         title: const Text(
           'Hydration Tracker',
           style: TextStyle(
@@ -38,20 +25,6 @@ class HydrationScreen extends StatelessWidget {
             fontWeight: FontWeight.w700,
           ),
         ),
-
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: IconButton(
-              icon: const Icon(
-                Icons.calendar_today_outlined,
-                color: Colors.white,
-                size: 19,
-              ),
-              onPressed: () {},
-            ),
-          ),
-        ],
       ),
 
       body: BlocBuilder<HydrationCubit, HydrationState>(

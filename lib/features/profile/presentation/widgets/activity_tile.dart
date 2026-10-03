@@ -33,14 +33,14 @@ class ActivityTileWidget extends StatelessWidget {
         boxShadow: selected
             ? [
                 BoxShadow(
-                  color: const Color(0xFF3A8DFF).withOpacity(0.12),
+                  color: const Color(0xFF3A8DFF).withValues(alpha: 0.12),
                   blurRadius: 12,
                   offset: const Offset(0, 6),
                 ),
               ]
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.18),
+                  color: Colors.black.withValues(alpha: 0.18),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -60,8 +60,8 @@ class ActivityTileWidget extends StatelessWidget {
                   width: 40,
                   decoration: BoxDecoration(
                     color: selected
-                        ? Colors.white.withOpacity(0.2)
-                        : Colors.white.withOpacity(0.05),
+                        ? Colors.white.withValues(alpha: 0.2)
+                        : Colors.white.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(icon, size: 23, color: Colors.white),
@@ -85,7 +85,7 @@ class ActivityTileWidget extends StatelessWidget {
                         getSubtitle(),
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.white.withValues(alpha: 0.7),
                         ),
                       ),
                     ],

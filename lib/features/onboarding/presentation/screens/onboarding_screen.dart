@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hydrowflow/features/onboarding/presentation/widgets/_ActivityTile.dart';
-import 'package:hydrowflow/features/onboarding/presentation/widgets/_MetricCard.dart';
+import 'package:hydrowflow/features/onboarding/presentation/widgets/activity_tile.dart';
+import 'package:hydrowflow/features/onboarding/presentation/widgets/metric_card.dart';
 import '../../logic/onboarding_cubit.dart';
 import '../../logic/onboarding_state.dart';
 import '../../data/models/onboarding_model.dart';
@@ -32,21 +32,8 @@ class OnboardingScreen extends StatelessWidget {
                       SizedBox(
                         height: 32,
                         child: Stack(
-                          children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: IconButton(
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                                icon: const Icon(
-                                  Icons.chevron_left,
-                                  size: 33,
-                                  color: Color(0xFF2864A9),
-                                ),
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                            ),
-                            const Center(
+                          children: const [
+                            Center(
                               child: Padding(
                                 padding: EdgeInsets.only(bottom: 2),
                                 child: Text(
@@ -183,8 +170,9 @@ class OnboardingScreen extends StatelessWidget {
                                   final dailyGoal = await cubit
                                       .finishOnboarding();
 
-                                  if (dailyGoal == null || !context.mounted)
+                                  if (dailyGoal == null || !context.mounted) {
                                     return;
+                                  }
 
                                   Navigator.pushReplacement(
                                     context,
@@ -197,8 +185,8 @@ class OnboardingScreen extends StatelessWidget {
                               : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
-                            disabledBackgroundColor: Colors.blue.withOpacity(
-                              0.3,
+                            disabledBackgroundColor: Colors.blue.withValues(
+                              alpha: 0.3,
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),

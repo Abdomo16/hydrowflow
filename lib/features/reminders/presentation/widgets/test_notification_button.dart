@@ -40,7 +40,7 @@ class TestNotificationButton extends StatelessWidget {
                     BoxShadow(
                       blurRadius: 12,
                       offset: const Offset(0, 6),
-                      color: Colors.black.withOpacity(0.25),
+                      color: Colors.black.withValues(alpha: 0.25),
                     ),
                   ],
                 ),

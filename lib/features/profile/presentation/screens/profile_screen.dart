@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrowflow/core/app/logic/app_cubit.dart';
@@ -21,6 +23,8 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   late TextEditingController heightController;
   late TextEditingController weightController;
+  String? heightError;
+  String? weightError;
 
   @override
   void initState() {
@@ -35,6 +39,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     weightController.dispose();
     super.dispose();
   }
+
+  bool get _isFormValid =>
+      heightError == null &&
+      weightError == null &&
+      heightController.text.isNotEmpty &&
+      weightController.text.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +70,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 }
               },
               builder: (context, state) {
-                if (state.isLoading || state.profile == null) {
+                if (state.isLoading) {
                   return const Center(child: CircularProgressIndicator());
+                }
+
+                if (state.profile == null) {
+                  return const Center(
+                    child: Text(
+                      'Profile not found',
+                      style: TextStyle(color: Colors.white54),
+                    ),
+                  );
                 }
 
                 final cubit = context.read<ProfileCubit>();
@@ -93,11 +112,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             label: "HEIGHT",
                             controller: heightController,
                             unit: "cm",
+                            errorText: heightError,
                             onChanged: (v) {
                               final parsed = double.tryParse(v);
-                              if (parsed != null) {
-                                cubit.updateHeight(parsed);
+                              if (parsed == null || parsed < 100 || parsed > 250) {
+                                setState(() => heightError = 'Enter 100-250 cm');
+                                return;
                               }
+                              setState(() => heightError = null);
+                              cubit.updateHeight(parsed);
                             },
                           ),
                           const SizedBox(height: 16),
@@ -105,11 +128,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             label: "WEIGHT",
                             controller: weightController,
                             unit: "kg",
+                            errorText: weightError,
                             onChanged: (v) {
                               final parsed = double.tryParse(v);
-                              if (parsed != null) {
-                                cubit.updateWeight(parsed);
+                              if (parsed == null || parsed < 30 || parsed > 250) {
+                                setState(() => weightError = 'Enter 30-250 kg');
+                                return;
                               }
+                              setState(() => weightError = null);
+                              cubit.updateWeight(parsed);
                             },
                           ),
                           const SizedBox(height: 30),
@@ -153,12 +180,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           const SizedBox(height: 35),
                           SaveButton(
-                            onPressed: () async {
-                              await cubit.saveProfile();
-                              final newGoal = cubit.state.profile!.dailyGoal;
-
-                              context.read<AppCubit>().updateGoal(newGoal);
-                            },
+                            onPressed: _isFormValid
+                                ? () {
+                                    final appCubit = context.read<AppCubit>();
+                                    unawaited(
+                                      cubit.saveProfile().then((_) {
+                                        if (!mounted) return;
+                                        final newGoal =
+                                            cubit.state.profile!.dailyGoal;
+                                        appCubit.updateGoal(newGoal);
+                                      }),
+                                    );
+                                  }
+                                : null,
                           ),
                         ],
                       ),

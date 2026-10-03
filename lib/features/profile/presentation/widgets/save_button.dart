@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class SaveButton extends StatelessWidget {
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
-  const SaveButton({super.key, required this.onPressed});
+  const SaveButton({super.key, this.onPressed});
   @override
   Widget build(BuildContext context) {
     return SizedBox(

@@ -4,6 +4,7 @@ class ProfileInputCard extends StatelessWidget {
   final String label;
   final TextEditingController controller;
   final String unit;
+  final String? errorText;
   final Function(String) onChanged;
 
   const ProfileInputCard({
@@ -11,6 +12,7 @@ class ProfileInputCard extends StatelessWidget {
     required this.label,
     required this.controller,
     required this.unit,
+    this.errorText,
     required this.onChanged,
   });
   @override
@@ -33,7 +35,11 @@ class ProfileInputCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: const Color(0xFF1B2633),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF3A8DFF).withOpacity(0.2)),
+            border: Border.all(
+              color: errorText != null
+                  ? Colors.red
+                  : const Color(0xFF3A8DFF).withValues(alpha: 0.2),
+            ),
           ),
           child: Row(
             children: [
@@ -62,6 +68,13 @@ class ProfileInputCard extends StatelessWidget {
             ],
           ),
         ),
+        if (errorText != null) ...[
+          const SizedBox(height: 6),
+          Text(
+            errorText!,
+            style: const TextStyle(color: Colors.redAccent, fontSize: 12),
+          ),
+        ],
       ],
     );
   }

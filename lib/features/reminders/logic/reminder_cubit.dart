@@ -68,8 +68,6 @@ class ReminderCubit extends Cubit<ReminderState> {
   }
 
   Future<void> _restartNotifications(ReminderSettings settings) async {
-    await NotificationService.cancelAll();
-
     final todayCups = await hydrationRepository.getTodayCups();
     final profile = await userProfileRepository.getProfile();
 
@@ -77,6 +75,8 @@ class ReminderCubit extends Cubit<ReminderState> {
 
     final dailyGoalLiters = (profile['daily_goal'] as num).toDouble();
     final totalCups = (dailyGoalLiters * 1000 / 250).round();
+
+    await NotificationService.cancelAll();
 
     if (todayCups >= totalCups) return;
 

@@ -15,7 +15,7 @@ class AddCupButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: Color(0xFF2F8BEF),
           elevation: 8,
-          shadowColor: Colors.blue.withOpacity(0.4),
+          shadowColor: Colors.blue.withValues(alpha: 0.4),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(40),
           ),
