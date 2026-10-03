@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:hydrowflow/core/di/service_locator.dart';
 import 'package:hydrowflow/database/app_database.dart';
 import 'package:hydrowflow/features/onboarding/presentation/screens/onboarding_screen.dart';
+import 'package:hydrowflow/features/subscription/data/repositories/subscription_repository.dart';
 import 'package:hydrowflow/core/navigation/main_navigation.dart';
 
 Future<void> main() async {
@@ -20,6 +21,12 @@ Future<void> main() async {
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
   } catch (e, stack) {
     log('Firebase initialization skipped or failed: $e', stackTrace: stack);
+  }
+
+  try {
+    await locator<SubscriptionRepository>().initialize();
+  } catch (e) {
+    log('RevenueCat initialization skipped or failed: $e');
   }
 
   runApp(const MyApp());
@@ -81,6 +88,9 @@ class _AppStarterState extends State<AppStarter> {
       return const OnboardingScreen();
     }
 
+    // Sign-in is optional (store policy: don't gate core features).
+    // Users can sign in from Settings > Account to sync data and
+    // recover purchases.
     return MainNavigation(dailyGoal: dailyGoal!);
   }
 }
