@@ -1,57 +1,65 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hydrowflow/core/di/service_locator.dart';
+import 'package:hydrowflow/core/ads/rewarded_trial.dart';
 import 'package:hydrowflow/core/theme/app_theme.dart';
-import '../../data/repositories/subscription_repository.dart';
 import '../../logic/subscription_cubit.dart';
 import '../../logic/subscription_state.dart';
 
-class PaywallScreen extends StatelessWidget {
+class PaywallScreen extends StatefulWidget {
   const PaywallScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => SubscriptionCubit(locator<SubscriptionRepository>())
-        ..loadPackages(),
-      child: const _PaywallView(),
-    );
+  State<PaywallScreen> createState() => _PaywallScreenState();
+}
+
+class _PaywallScreenState extends State<PaywallScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<SubscriptionCubit>().loadPackages();
   }
+
+  @override
+  Widget build(BuildContext context) => const _PaywallView();
 }
 
 class _PaywallView extends StatelessWidget {
   const _PaywallView();
 
-  static const List<(IconData, String, String)> _proFeatures = [
+  static List<(IconData, String, String)> get _proFeatures => [
     (
-      Icons.cloud_sync_outlined,
-      'Cloud Backup & Sync',
-      'Your data is safe and follows you across devices.'
-    ),
-    (
-      Icons.insights_outlined,
-      'Advanced Statistics',
-      'Monthly trends, yearly views, and deeper insights.'
-    ),
-    (
-      Icons.local_drink_outlined,
-      'Custom Drinks & Sizes',
-      'Log coffee, tea, juice, and any custom cup size.'
+      Icons.block,
+      'No Ads',
+      'A clean app with no banners or videos.',
     ),
     (
       Icons.notifications_active_outlined,
-      'Unlimited Reminder Presets',
-      'Custom schedules and sounds that fit your day.'
+      'Smart Reminders & All Sounds',
+      'Reminders wait after each drink, stop when you hit your goal, '
+          'any interval you like.',
     ),
     (
-      Icons.dashboard_customize_outlined,
-      'Home Screen Widgets',
-      'Track and log water without opening the app.'
+      Icons.insights_outlined,
+      'Monthly Stats & History',
+      'See every week of the month and your full drinking history.',
     ),
     (
-      Icons.file_download_outlined,
-      'Export Your Data',
-      'Download your full history as CSV anytime.'
+      Icons.local_cafe_outlined,
+      'Drink Types',
+      'Log coffee, tea, juice, milk and more, each counted correctly.',
+    ),
+    if (Platform.isAndroid)
+      (
+        Icons.widgets_outlined,
+        'Home Screen Widget',
+        'See your progress and add a cup without opening the app.',
+      ),
+    (
+      Icons.palette_outlined,
+      'Color Themes',
+      'Mint, Sunset, Lavender and Rose, in light and dark.',
     ),
   ];
 
@@ -73,10 +81,12 @@ class _PaywallView extends StatelessWidget {
               SnackBar(content: Text(state.error!)),
             );
           }
-          if (state.isPro) {
+          if (state.isPremium) {
             Navigator.pop(context, true);
           }
         },
+        listenWhen: (prev, curr) =>
+            curr.error != null || (!prev.isPremium && curr.isPremium),
         builder: (context, state) {
           final cubit = context.read<SubscriptionCubit>();
 
@@ -94,7 +104,7 @@ class _PaywallView extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'HydroFlow Pro',
+                    'HydroFlow Premium',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: colors.textPrimary,
@@ -163,6 +173,33 @@ class _PaywallView extends StatelessWidget {
                       );
                     }),
 
+                  const SizedBox(height: 4),
+                  SizedBox(
+                    height: 52,
+                    child: OutlinedButton.icon(
+                      onPressed: state.purchasing
+                          ? null
+                          : () => RewardedTrial.show(context),
+                      icon: Icon(
+                        Icons.play_circle_outline,
+                        color: colors.primary,
+                      ),
+                      label: Text(
+                        'Watch a video for 24h free',
+                        style: TextStyle(
+                          color: colors.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: colors.primary, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   TextButton(
                     onPressed:
                         state.purchasing ? null : cubit.restorePurchases,
