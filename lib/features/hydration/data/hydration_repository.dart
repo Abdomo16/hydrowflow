@@ -94,6 +94,18 @@ class HydrationRepository {
     return rows.map(HydrationLog.fromMap).toList();
   }
 
+  Future<DateTime?> getLastLogTime() async {
+    final db = await AppDatabase.database;
+    final rows = await db.query(
+      'hydration_logs',
+      orderBy: 'created_at DESC',
+      limit: 1,
+    );
+
+    if (rows.isEmpty) return null;
+    return HydrationLog.fromMap(rows.first).createdAt;
+  }
+
   Future<HydrationLog> addDrink(int amountMl) async {
     final db = await AppDatabase.database;
     final today = _today();

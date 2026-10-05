@@ -1,15 +1,20 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hydrowflow/core/notifications/notification_service.dart';
 import '../data/hydration_repository.dart';
 import 'hydration_state.dart';
 
 class HydrationCubit extends Cubit<HydrationState> {
   final HydrationRepository repository;
 
+  /// Called after drinks change so dependent work (e.g. reminders) can update.
+  final Future<void> Function()? onLogsChanged;
+
   static const int defaultCupSizeMl = 250;
 
-  HydrationCubit({required double dailyGoalLiters, required this.repository})
-    : super(HydrationState.initial(dailyGoalLiters)) {
+  HydrationCubit({
+    required double dailyGoalLiters,
+    required this.repository,
+    this.onLogsChanged,
+  }) : super(HydrationState.initial(dailyGoalLiters)) {
     loadToday();
   }
 
@@ -24,8 +29,6 @@ class HydrationCubit extends Cubit<HydrationState> {
         totalCups: newTotalCups,
       ),
     );
-
-    await _maybeCancelNotifications();
   }
 
   Future<void> loadToday() async {
@@ -44,8 +47,6 @@ class HydrationCubit extends Cubit<HydrationState> {
           loading: false,
         ),
       );
-
-      await _maybeCancelNotifications();
     } catch (e) {
       emit(state.copyWith(loading: false, error: 'Failed to load hydration data'));
     }
@@ -61,6 +62,7 @@ class HydrationCubit extends Cubit<HydrationState> {
     try {
       await repository.addDrink(amountMl);
       await loadToday();
+      await onLogsChanged?.call();
     } catch (e) {
       emit(state.copyWith(loading: false, error: 'Failed to add drink'));
     }
@@ -72,6 +74,7 @@ class HydrationCubit extends Cubit<HydrationState> {
     try {
       await repository.deleteLog(id);
       await loadToday();
+      await onLogsChanged?.call();
     } catch (e) {
       emit(state.copyWith(loading: false, error: 'Failed to delete log'));
     }
@@ -83,14 +86,9 @@ class HydrationCubit extends Cubit<HydrationState> {
     try {
       await repository.undoLast();
       await loadToday();
+      await onLogsChanged?.call();
     } catch (e) {
       emit(state.copyWith(loading: false, error: 'Failed to undo'));
-    }
-  }
-
-  Future<void> _maybeCancelNotifications() async {
-    if (state.goalReached) {
-      await NotificationService.cancelAll();
     }
   }
 }

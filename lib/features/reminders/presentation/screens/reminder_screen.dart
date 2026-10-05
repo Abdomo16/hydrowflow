@@ -3,14 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:hydrowflow/core/di/service_locator.dart';
 import 'package:hydrowflow/features/reminders/data/repositories/reminder_repository.dart';
+import 'package:hydrowflow/features/reminders/logic/reminder_coordinator.dart';
 import 'package:hydrowflow/features/reminders/logic/reminder_cubit.dart';
 import 'package:hydrowflow/features/reminders/logic/reminder_state.dart';
 
-import 'package:hydrowflow/features/hydration/data/hydration_repository.dart';
-import 'package:hydrowflow/features/onboarding/data/repositories/user_profile_repository.dart';
-
 import 'package:hydrowflow/features/reminders/presentation/widgets/active_hours_card.dart';
 import 'package:hydrowflow/features/reminders/presentation/widgets/frequency_selector.dart';
+import 'package:hydrowflow/features/reminders/presentation/widgets/reminder_status_card.dart';
 import 'package:hydrowflow/features/reminders/presentation/widgets/reminder_toggle.dart';
 import 'package:hydrowflow/features/reminders/presentation/widgets/sound_selector.dart';
 import 'package:hydrowflow/features/reminders/presentation/widgets/test_notification_button.dart';
@@ -23,74 +22,99 @@ class ReminderScreen extends StatelessWidget {
     return BlocProvider(
       create: (_) => ReminderCubit(
         locator<ReminderRepository>(),
-        locator<HydrationRepository>(),
-        locator<UserProfileRepository>(),
+        locator<ReminderCoordinator>(),
       ),
-      child: Scaffold(
-        backgroundColor: const Color(0xFF0E1621),
+      child: const _ReminderView(),
+    );
+  }
+}
 
-        appBar: AppBar(
-          title: const Text("Reminders", style: TextStyle(color: Colors.white)),
-          backgroundColor: const Color(0xFF0E1621),
-          elevation: 0,
-          scrolledUnderElevation: 0,
-        ),
+class _ReminderView extends StatefulWidget {
+  const _ReminderView();
 
-        body: BlocBuilder<ReminderCubit, ReminderState>(
-          builder: (context, state) {
-            if (state.loading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+  @override
+  State<_ReminderView> createState() => _ReminderViewState();
+}
 
-            return ScrollConfiguration(
-              behavior: ScrollConfiguration.of(
-                context,
-              ).copyWith(overscroll: false),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    /// Toggle Reminder ON/OFF
-                    ReminderToggle(
-                      value: state.settings.enabled,
-                      onChanged: (v) => context.read<ReminderCubit>().toggle(v),
-                    ),
+class _ReminderViewState extends State<_ReminderView>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
 
-                    const SizedBox(height: 24),
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
 
-                    /// Frequency Selector
-                    FrequencySelector(
-                      selected: state.settings.frequencyMinutes,
-                      onSelect: (v) =>
-                          context.read<ReminderCubit>().changeFrequency(v),
-                    ),
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      context.read<ReminderCubit>().refreshPermission();
+    }
+  }
 
-                    const SizedBox(height: 24),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Reminders')),
+      body: BlocBuilder<ReminderCubit, ReminderState>(
+        builder: (context, state) {
+          if (state.loading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-                    /// Active Hours
-                    ActiveHoursCard(
-                      wake: state.settings.wakeTime,
-                      sleep: state.settings.sleepTime,
-                    ),
+          final cubit = context.read<ReminderCubit>();
 
-                    const SizedBox(height: 32),
+          return ScrollConfiguration(
+            behavior: ScrollConfiguration.of(
+              context,
+            ).copyWith(overscroll: false),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ReminderToggle(
+                    value: state.settings.enabled,
+                    onChanged: cubit.toggle,
+                  ),
 
-                    /// Sound Selector
-                    const SoundSelector(),
+                  const SizedBox(height: 12),
 
-                    const SizedBox(height: 32),
+                  const ReminderStatusCard(),
 
-                    /// Test Notification Button
-                    const TestNotificationButton(),
+                  const SizedBox(height: 24),
 
-                    const SizedBox(height: 40),
-                  ],
-                ),
+                  FrequencySelector(
+                    selected: state.settings.frequencyMinutes,
+                    onSelect: cubit.changeFrequency,
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  ActiveHoursCard(
+                    wake: state.settings.wakeTime,
+                    sleep: state.settings.sleepTime,
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  const SoundSelector(),
+
+                  const SizedBox(height: 32),
+
+                  const TestNotificationButton(),
+
+                  const SizedBox(height: 40),
+                ],
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

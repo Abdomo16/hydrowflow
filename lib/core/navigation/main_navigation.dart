@@ -8,6 +8,7 @@ import '../../features/hydration/data/hydration_repository.dart';
 import '../../features/hydration/logic/hydration_cubit.dart';
 import '../../features/hydration/presentation/screens/hydration_screen.dart';
 
+import '../../features/reminders/logic/reminder_coordinator.dart';
 import '../../features/reminders/presentation/screens/reminder_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../features/statistics/data/repositories/statistics_repository.dart';
@@ -28,11 +29,28 @@ class MainNavigation extends StatefulWidget {
   State<MainNavigation> createState() => _MainNavigationState();
 }
 
-class _MainNavigationState extends State<MainNavigation> {
+class _MainNavigationState extends State<MainNavigation>
+    with WidgetsBindingObserver {
+  final _reminders = locator<ReminderCoordinator>();
+
   @override
   void initState() {
     super.initState();
-    NotificationService.init();
+    WidgetsBinding.instance.addObserver(this);
+    NotificationService.init().then((_) => _reminders.reschedule());
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _reminders.reschedule();
+    }
   }
 
   @override
@@ -47,6 +65,7 @@ class _MainNavigationState extends State<MainNavigation> {
           create: (_) => HydrationCubit(
             dailyGoalLiters: widget.dailyGoal,
             repository: locator<HydrationRepository>(),
+            onLogsChanged: _reminders.reschedule,
           ),
         ),
 
@@ -60,6 +79,7 @@ class _MainNavigationState extends State<MainNavigation> {
       child: BlocListener<AppCubit, double>(
         listener: (context, newGoal) {
           context.read<HydrationCubit>().updateGoal(newGoal);
+          _reminders.reschedule();
 
           context.read<StatisticsCubit>().updateTarget(
             (newGoal * 1000 / 250).round(),
@@ -80,7 +100,6 @@ class _MainNavigationState extends State<MainNavigation> {
             ];
 
             return Scaffold(
-              backgroundColor: const Color(0xFF0E1621),
               body: IndexedStack(index: state.index, children: pages),
               bottomNavigationBar: AppBottomNavBar(
                 currentIndex: state.index,
