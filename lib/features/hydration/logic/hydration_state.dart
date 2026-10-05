@@ -1,3 +1,4 @@
+import 'package:hydrowflow/features/hydration/data/models/drink_type.dart';
 import 'package:hydrowflow/features/hydration/data/models/hydration_log.dart';
 
 class HydrationState {
@@ -6,6 +7,7 @@ class HydrationState {
   final int consumedCups;
   final int consumedMl;
   final List<HydrationLog> logs;
+  final DrinkType selectedDrink;
   final bool loading;
   final String? error;
 
@@ -15,6 +17,7 @@ class HydrationState {
     required this.consumedCups,
     required this.consumedMl,
     required this.logs,
+    this.selectedDrink = DrinkType.water,
     this.loading = false,
     this.error,
   });
@@ -58,6 +61,7 @@ class HydrationState {
     int? consumedCups,
     int? consumedMl,
     List<HydrationLog>? logs,
+    DrinkType? selectedDrink,
     bool? loading,
     String? error,
   }) {
@@ -67,6 +71,7 @@ class HydrationState {
       consumedCups: consumedCups ?? this.consumedCups,
       consumedMl: consumedMl ?? this.consumedMl,
       logs: logs ?? this.logs,
+      selectedDrink: selectedDrink ?? this.selectedDrink,
       loading: loading ?? this.loading,
       error: error ?? this.error,
     );

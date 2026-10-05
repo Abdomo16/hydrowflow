@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrowflow/core/theme/app_theme.dart';
+import 'package:hydrowflow/features/hydration/data/models/drink_type.dart';
 import 'package:hydrowflow/features/hydration/data/models/hydration_log.dart';
 import 'package:hydrowflow/features/hydration/logic/hydration_cubit.dart';
 import 'package:hydrowflow/features/hydration/logic/hydration_state.dart';
@@ -190,7 +191,7 @@ class _LogTile extends StatelessWidget {
               color: colors.primarySoft,
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.water_drop, color: colors.primary, size: 18),
+            child: Icon(log.drinkType.icon, color: colors.primary, size: 18),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -198,7 +199,9 @@ class _LogTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${log.amountMl} ml',
+                  log.drinkType == DrinkType.water
+                      ? '${log.amountMl} ml'
+                      : '${log.drinkType.label} · ${log.amountMl} ml',
                   style: TextStyle(
                     color: colors.textPrimary,
                     fontWeight: FontWeight.w600,

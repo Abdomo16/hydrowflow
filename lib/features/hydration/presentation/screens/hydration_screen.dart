@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrowflow/core/theme/app_theme.dart';
 import 'package:hydrowflow/features/hydration/presentation/widgets/add_cup_button.dart';
+import 'package:hydrowflow/features/hydration/presentation/widgets/drink_type_selector.dart';
 import 'package:hydrowflow/features/hydration/presentation/widgets/today_log_list.dart';
 import 'package:hydrowflow/features/hydration/presentation/widgets/water_glass.dart';
 
@@ -132,7 +133,11 @@ class HydrationScreen extends StatelessWidget {
                   style: TextStyle(color: colors.textSecondary, fontSize: 13),
                 ),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
+
+                const DrinkTypeSelector(),
+
+                const SizedBox(height: 16),
 
                 const AddCupButton(),
 
