@@ -68,6 +68,8 @@ dependencies:
 
   # Subscriptions (RevenueCat)
   purchases_flutter: ^8.7.1
+  google_mobile_ads: ^9.1.0
+  home_widget: ^0.10.0
 
 dev_dependencies:
   flutter_test:
