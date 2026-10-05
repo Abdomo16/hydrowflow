@@ -4,6 +4,7 @@ import 'package:hydrowflow/features/hydration/data/hydration_repository.dart';
 import 'package:hydrowflow/features/onboarding/data/repositories/user_profile_repository.dart';
 import 'package:hydrowflow/features/reminders/data/repositories/reminder_repository.dart';
 import 'package:hydrowflow/features/reminders/logic/reminder_scheduler.dart';
+import 'package:hydrowflow/features/reminders/logic/reminder_tier.dart';
 
 class ReminderStatus {
   final bool enabled;
@@ -27,12 +28,14 @@ class ReminderCoordinator {
   final ReminderRepository reminderRepository;
   final HydrationRepository hydrationRepository;
   final UserProfileRepository userProfileRepository;
+  final bool Function() isPremium;
 
   ReminderCoordinator(
     this.reminderRepository,
     this.hydrationRepository,
-    this.userProfileRepository,
-  );
+    this.userProfileRepository, {
+    bool Function()? isPremium,
+  }) : isPremium = isPremium ?? (() => false);
 
   Future<ReminderStatus> _pending = Future.value(ReminderStatus.disabled);
 
@@ -64,15 +67,24 @@ class ReminderCoordinator {
       final consumedMl = await hydrationRepository.getTodayMl();
       final lastDrinkAt = await hydrationRepository.getLastLogTime();
       final goalReached = goalMl > 0 && consumedMl >= goalMl;
+      final premium = isPremium();
 
       final slots = planReminders(
-        intervalMinutes: settings.frequencyMinutes,
+        intervalMinutes: ReminderTier.effectiveInterval(
+          settings.frequencyMinutes,
+          premium: premium,
+        ),
         wakeTime: settings.wakeTime,
         sleepTime: settings.sleepTime,
         now: DateTime.now(),
         goalReachedToday: goalReached,
         lastDrinkAt: lastDrinkAt,
+        smart: premium,
         maxCount: NotificationService.maxReminders,
+      );
+      final soundId = ReminderTier.effectiveSound(
+        settings.sound,
+        premium: premium,
       );
 
       var scheduled = 0;
@@ -87,7 +99,7 @@ class ReminderCoordinator {
           dateTime: slots[i].at,
           title: message.$1,
           body: message.$2,
-          soundId: settings.sound,
+          soundId: soundId,
         );
         if (ok) scheduled++;
       }

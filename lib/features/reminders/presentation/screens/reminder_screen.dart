@@ -6,6 +6,9 @@ import 'package:hydrowflow/features/reminders/data/repositories/reminder_reposit
 import 'package:hydrowflow/features/reminders/logic/reminder_coordinator.dart';
 import 'package:hydrowflow/features/reminders/logic/reminder_cubit.dart';
 import 'package:hydrowflow/features/reminders/logic/reminder_state.dart';
+import 'package:hydrowflow/features/reminders/logic/reminder_tier.dart';
+import 'package:hydrowflow/features/subscription/logic/pro_gate.dart';
+import 'package:hydrowflow/features/subscription/logic/subscription_cubit.dart';
 
 import 'package:hydrowflow/features/reminders/presentation/widgets/active_hours_card.dart';
 import 'package:hydrowflow/features/reminders/presentation/widgets/frequency_selector.dart';
@@ -68,6 +71,9 @@ class _ReminderViewState extends State<_ReminderView>
           }
 
           final cubit = context.read<ReminderCubit>();
+          final premium = context.select<SubscriptionCubit, bool>(
+            (c) => c.state.isPremium,
+          );
 
           return ScrollConfiguration(
             behavior: ScrollConfiguration.of(
@@ -90,8 +96,13 @@ class _ReminderViewState extends State<_ReminderView>
                   const SizedBox(height: 24),
 
                   FrequencySelector(
-                    selected: state.settings.frequencyMinutes,
+                    selected: ReminderTier.effectiveInterval(
+                      state.settings.frequencyMinutes,
+                      premium: premium,
+                    ),
+                    premium: premium,
                     onSelect: cubit.changeFrequency,
+                    onLockedTap: () => ProGate.showPaywallIfLocked(context),
                   ),
 
                   const SizedBox(height: 24),

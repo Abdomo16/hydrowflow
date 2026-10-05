@@ -112,6 +112,38 @@ void main() {
     expect(slots.length, 60);
   });
 
+  group('free (not smart)', () {
+    test('a drink does not move the schedule', () {
+      final slots = planReminders(
+        intervalMinutes: 60,
+        wakeTime: '08:00',
+        sleepTime: '22:00',
+        now: DateTime(2026, 10, 5, 10, 56),
+        goalReachedToday: false,
+        lastDrinkAt: DateTime(2026, 10, 5, 10, 55),
+        smart: false,
+        daysAhead: 1,
+      );
+
+      expect(slots.first.at, DateTime(2026, 10, 5, 11, 0));
+    });
+
+    test('reaching the goal does not stop today\'s reminders', () {
+      final slots = planReminders(
+        intervalMinutes: 60,
+        wakeTime: '08:00',
+        sleepTime: '22:00',
+        now: DateTime(2026, 10, 5, 15, 0),
+        goalReachedToday: true,
+        smart: false,
+        daysAhead: 1,
+      );
+
+      expect(slots.first.at, DateTime(2026, 10, 5, 16, 0));
+      expect(slots.first.isCurrentDay, isTrue);
+    });
+  });
+
   test('all reminders are at least one minute in the future', () {
     final now = DateTime(2026, 10, 5, 8, 59, 30);
     final slots = plan(now: now, daysAhead: 1);

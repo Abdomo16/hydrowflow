@@ -3,6 +3,7 @@ import 'package:hydrowflow/core/notifications/notification_service.dart';
 import 'package:hydrowflow/features/reminders/data/models/reminder_settings.dart';
 import '../data/repositories/reminder_repository.dart';
 import 'reminder_coordinator.dart';
+import 'reminder_tier.dart';
 import 'reminder_state.dart';
 
 class ReminderCubit extends Cubit<ReminderState> {
@@ -92,7 +93,10 @@ class ReminderCubit extends Cubit<ReminderState> {
     return NotificationService.showNow(
       title: 'Time for a sip 💧',
       body: 'Test notification: reminders are working.',
-      soundId: state.settings.sound,
+      soundId: ReminderTier.effectiveSound(
+        state.settings.sound,
+        premium: coordinator.isPremium(),
+      ),
     );
   }
 
