@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
 import 'package:hydrowflow/features/settings/data/models/settings_model.dart';
 import 'package:hydrowflow/features/settings/data/repositories/settings_repository.dart';
 import 'settings_state.dart';
@@ -35,6 +36,11 @@ class SettingsCubit extends Cubit<SettingsState> {
     if (ml <= 0) return;
     final updated = state.settings.copyWith(cupSizeMl: ml);
     await _save(updated);
+  }
+
+  Future<void> setPalette(AppPalette palette) async {
+    if (palette == state.settings.palette) return;
+    await _save(state.settings.copyWith(palette: palette));
   }
 
   Future<void> _save(SettingsModel settings) async {

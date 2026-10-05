@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrowflow/core/ads/ad_service.dart';
 import 'package:hydrowflow/core/app/logic/app_cubit.dart';
 import 'package:hydrowflow/core/di/service_locator.dart';
 import 'package:hydrowflow/core/theme/app_theme.dart';
@@ -11,24 +12,18 @@ import 'package:hydrowflow/features/settings/data/models/settings_model.dart';
 import 'package:hydrowflow/features/settings/logic/settings_cubit.dart';
 import 'package:hydrowflow/features/settings/logic/settings_state.dart';
 import 'package:hydrowflow/features/settings/presentation/widgets/cup_size_bottom_sheet.dart';
-import 'package:hydrowflow/features/subscription/data/repositories/subscription_repository.dart';
 import 'package:hydrowflow/features/subscription/logic/pro_gate.dart';
 import 'package:hydrowflow/features/subscription/logic/subscription_cubit.dart';
 import 'package:hydrowflow/features/subscription/logic/subscription_state.dart';
 import 'package:hydrowflow/features/subscription/presentation/screens/paywall_screen.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => SubscriptionCubit(locator<SubscriptionRepository>())
-        ..refreshPro(),
-      child: const _SettingsView(),
-    );
-  }
+  Widget build(BuildContext context) => const _SettingsView();
 }
 
 class _SettingsView extends StatelessWidget {
@@ -117,6 +112,7 @@ class _SettingsView extends StatelessWidget {
                   onChanged: settingsCubit.toggleDarkMode,
                 ),
               ),
+              _ThemePicker(selected: settingsState.settings.palette),
               const SizedBox(height: 24),
               _SectionTitle('Account'),
               _SettingsTile(
@@ -158,6 +154,7 @@ class _SettingsView extends StatelessWidget {
                 title: 'Licenses',
                 onTap: () => _showLicenses(context),
               ),
+              const _AdPrivacyTile(),
               const SizedBox(height: 24),
               _SectionTitle('Subscription'),
               const _SubscriptionSection(),
@@ -287,15 +284,28 @@ class _SubscriptionSection extends StatelessWidget {
       builder: (context, subState) {
         final cubit = context.read<SubscriptionCubit>();
 
+        final String title;
+        final String subtitle;
+        if (subState.isPro) {
+          title = 'You are a Premium member';
+          subtitle = 'All features unlocked, no ads';
+        } else if (subState.trialActive) {
+          title = 'Premium trial active';
+          subtitle =
+              'Until ${DateFormat.MMMd().add_jm().format(subState.trialUntil!)}'
+              ' · Tap to keep it forever';
+        } else {
+          title = 'Upgrade to Premium';
+          subtitle = 'No ads, smart reminders, full stats, themes';
+        }
+
         return Column(
           children: [
             _SettingsTile(
               icon: Icons.workspace_premium,
-              title: subState.isPro ? 'You are a Pro member' : 'Upgrade to Pro',
-              subtitle: subState.isPro
-                  ? 'All features unlocked'
-                  : 'Cloud sync, advanced stats, widgets',
-              trailing: subState.isPro ? const ProBadge() : null,
+              title: title,
+              subtitle: subtitle,
+              trailing: subState.isPremium ? const ProBadge() : null,
               onTap: subState.isPro
                   ? null
                   : () => Navigator.of(context).push(
@@ -309,6 +319,148 @@ class _SubscriptionSection extends StatelessWidget {
                 onTap: cubit.restorePurchases,
               ),
           ],
+        );
+      },
+    );
+  }
+}
+
+class _ThemePicker extends StatelessWidget {
+  final AppPalette selected;
+
+  const _ThemePicker({required this.selected});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final premium = context.select<SubscriptionCubit, bool>(
+      (c) => c.state.isPremium,
+    );
+    final active = premium ? selected : AppPalette.ocean;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: colors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                'Color Theme',
+                style: TextStyle(
+                  color: colors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                active.label,
+                style: TextStyle(color: colors.textSecondary, fontSize: 12),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              for (final palette in AppPalette.values)
+                _PaletteSwatch(
+                  palette: palette,
+                  selected: palette == active,
+                  locked: !premium && !palette.isFree,
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PaletteSwatch extends StatelessWidget {
+  final AppPalette palette;
+  final bool selected;
+  final bool locked;
+
+  const _PaletteSwatch({
+    required this.palette,
+    required this.selected,
+    required this.locked,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return Semantics(
+      button: true,
+      label: '${palette.label} theme${locked ? ', Premium' : ''}',
+      child: GestureDetector(
+        onTap: () async {
+          final settings = context.read<SettingsCubit>();
+          if (locked && !await ProGate.showPaywallIfLocked(context)) return;
+          settings.setPalette(palette);
+        },
+        child: Container(
+          width: 46,
+          height: 46,
+          padding: const EdgeInsets.all(3),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: selected ? palette.lightPrimary : Colors.transparent,
+              width: 2.5,
+            ),
+          ),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [palette.primaryLight, palette.lightPrimary],
+              ),
+            ),
+            child: Center(
+              child: selected
+                  ? const Icon(Icons.check, color: Colors.white, size: 20)
+                  : locked
+                  ? Icon(
+                      Icons.lock,
+                      color: colors.onPrimary.withValues(alpha: 0.9),
+                      size: 16,
+                    )
+                  : null,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AdPrivacyTile extends StatelessWidget {
+  const _AdPrivacyTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: AdService.isSupported
+          ? AdService.privacyOptionsRequired
+          : Future.value(false),
+      builder: (context, snapshot) {
+        if (snapshot.data != true) return const SizedBox.shrink();
+        return _SettingsTile(
+          icon: Icons.ads_click,
+          title: 'Ad Privacy Choices',
+          subtitle: 'Change how ads use your data',
+          onTap: AdService.showPrivacyOptions,
         );
       },
     );

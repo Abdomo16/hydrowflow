@@ -1,5 +1,33 @@
 import 'package:flutter/material.dart';
 
+/// Accent palettes. Ocean is the free default; the others are Premium.
+enum AppPalette {
+  ocean('Ocean', Color(0xFF1E88E5), Color(0xFF2F8BEF), Color(0xFF5DB4FF)),
+  mint('Mint', Color(0xFF0F9D84), Color(0xFF20B497), Color(0xFF5EDCC0)),
+  sunset('Sunset', Color(0xFFEA6A1B), Color(0xFFF07B2E), Color(0xFFFFA866)),
+  lavender('Lavender', Color(0xFF7457D6), Color(0xFF8B6CF0), Color(0xFFB39DFF)),
+  rose('Rose', Color(0xFFD93A72), Color(0xFFEC5089), Color(0xFFFF8DB3));
+
+  final String label;
+  final Color lightPrimary;
+  final Color darkPrimary;
+  final Color primaryLight;
+
+  const AppPalette(
+    this.label,
+    this.lightPrimary,
+    this.darkPrimary,
+    this.primaryLight,
+  );
+
+  bool get isFree => this == ocean;
+
+  static AppPalette byName(String? name) => AppPalette.values.firstWhere(
+    (p) => p.name == name,
+    orElse: () => ocean,
+  );
+}
+
 /// Semantic colors used across the app. Read them with `context.colors`.
 @immutable
 class AppColors extends ThemeExtension<AppColors> {
@@ -85,6 +113,62 @@ class AppColors extends ThemeExtension<AppColors> {
     shadow: Color(0x40000000),
   );
 
+  static AppColors forPalette(AppPalette palette, Brightness brightness) {
+    final isDark = brightness == Brightness.dark;
+    if (palette == AppPalette.ocean) return isDark ? dark : light;
+
+    Color tint(Color base, double amount) =>
+        Color.alphaBlend(palette.lightPrimary.withValues(alpha: amount), base);
+
+    if (isDark) {
+      return AppColors(
+        background: dark.background,
+        surface: dark.surface,
+        surfaceAlt: dark.surfaceAlt,
+        navBar: dark.navBar,
+        border: dark.border,
+        primary: palette.darkPrimary,
+        primaryLight: palette.primaryLight,
+        primarySoft: Color.alphaBlend(
+          palette.darkPrimary.withValues(alpha: 0.28),
+          dark.surface,
+        ),
+        onPrimary: dark.onPrimary,
+        textPrimary: dark.textPrimary,
+        textSecondary: dark.textSecondary,
+        textMuted: dark.textMuted,
+        success: dark.success,
+        danger: dark.danger,
+        warning: dark.warning,
+        glass: dark.glass,
+        glassOutline: dark.glassOutline,
+        shadow: dark.shadow,
+      );
+    }
+
+    const white = Color(0xFFFFFFFF);
+    return AppColors(
+      background: tint(white, 0.05),
+      surface: white,
+      surfaceAlt: tint(white, 0.09),
+      navBar: white,
+      border: tint(white, 0.15),
+      primary: palette.lightPrimary,
+      primaryLight: palette.primaryLight,
+      primarySoft: tint(white, 0.15),
+      onPrimary: white,
+      textPrimary: light.textPrimary,
+      textSecondary: light.textSecondary,
+      textMuted: light.textMuted,
+      success: light.success,
+      danger: light.danger,
+      warning: light.warning,
+      glass: tint(white, 0.11),
+      glassOutline: tint(white, 0.28),
+      shadow: palette.lightPrimary.withValues(alpha: 0.10),
+    );
+  }
+
   @override
   AppColors copyWith() => this;
 
@@ -124,8 +208,18 @@ extension AppColorsX on BuildContext {
 }
 
 class AppTheme {
-  static ThemeData get light => _build(AppColors.light, Brightness.light);
-  static ThemeData get dark => _build(AppColors.dark, Brightness.dark);
+  static ThemeData get light => lightFor(AppPalette.ocean);
+  static ThemeData get dark => darkFor(AppPalette.ocean);
+
+  static ThemeData lightFor(AppPalette palette) => _build(
+    AppColors.forPalette(palette, Brightness.light),
+    Brightness.light,
+  );
+
+  static ThemeData darkFor(AppPalette palette) => _build(
+    AppColors.forPalette(palette, Brightness.dark),
+    Brightness.dark,
+  );
 
   static ThemeData _build(AppColors c, Brightness brightness) {
     final scheme = ColorScheme.fromSeed(

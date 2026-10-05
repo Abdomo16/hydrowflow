@@ -1,3 +1,5 @@
+import 'package:hydrowflow/core/theme/app_theme.dart';
+
 enum AppUnit { metric, imperial }
 
 class SettingsModel {
@@ -7,22 +9,30 @@ class SettingsModel {
   final AppUnit unit;
   final bool darkMode;
   final int cupSizeMl;
+  final AppPalette palette;
 
   const SettingsModel({
     required this.unit,
     required this.darkMode,
     this.cupSizeMl = defaultCupSizeMl,
+    this.palette = AppPalette.ocean,
   });
 
   factory SettingsModel.defaults() {
     return const SettingsModel(unit: AppUnit.metric, darkMode: false);
   }
 
-  SettingsModel copyWith({AppUnit? unit, bool? darkMode, int? cupSizeMl}) {
+  SettingsModel copyWith({
+    AppUnit? unit,
+    bool? darkMode,
+    int? cupSizeMl,
+    AppPalette? palette,
+  }) {
     return SettingsModel(
       unit: unit ?? this.unit,
       darkMode: darkMode ?? this.darkMode,
       cupSizeMl: cupSizeMl ?? this.cupSizeMl,
+      palette: palette ?? this.palette,
     );
   }
 }
