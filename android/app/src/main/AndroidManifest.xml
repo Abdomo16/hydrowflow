@@ -49,10 +49,10 @@
             </intent-filter>
         </activity>
 
-        <!-- AdMob App ID (Google's test ID; replace with yours before release) -->
+        <!-- AdMob App ID -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="ca-app-pub-1716159714785182~4111589605" />
 
         <!-- Home screen widget -->
         <receiver

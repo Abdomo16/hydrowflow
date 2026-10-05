@@ -60,12 +60,12 @@ class RewardedTrial {
     return rewarded;
   }
 
-  static Future<RewardedAd?> _load() {
-    final result = Completer<RewardedAd?>();
-    RewardedAd.load(
+  static Future<RewardedInterstitialAd?> _load() {
+    final result = Completer<RewardedInterstitialAd?>();
+    RewardedInterstitialAd.load(
       adUnitId: AdIds.rewarded,
       request: const AdRequest(),
-      rewardedAdLoadCallback: RewardedAdLoadCallback(
+      rewardedInterstitialAdLoadCallback: RewardedInterstitialAdLoadCallback(
         onAdLoaded: result.complete,
         onAdFailedToLoad: (_) => result.complete(null),
       ),
