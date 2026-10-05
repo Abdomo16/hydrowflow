@@ -14,7 +14,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 5,
+      version: 6,
       onCreate: (db, _) async {
         await _createTables(db);
       },
@@ -63,6 +63,19 @@ class AppDatabase {
             )
           ''');
         }
+
+        // v6 migration (Drink types)
+        if (oldVersion < 6) {
+          await db.execute(
+            "ALTER TABLE hydration_logs ADD COLUMN drink_type TEXT DEFAULT 'water'",
+          );
+          await db.execute(
+            'ALTER TABLE hydration_logs ADD COLUMN hydration_ml INTEGER',
+          );
+          await db.execute(
+            'UPDATE hydration_logs SET hydration_ml = amount_ml',
+          );
+        }
       },
     );
   }
@@ -103,7 +116,9 @@ class AppDatabase {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         date TEXT NOT NULL,
         amount_ml INTEGER NOT NULL,
-        created_at TEXT NOT NULL
+        created_at TEXT NOT NULL,
+        drink_type TEXT DEFAULT 'water',
+        hydration_ml INTEGER
       )
     ''');
   }

@@ -1,5 +1,17 @@
 import 'package:hydrowflow/database/app_database.dart';
 
+class DayHistory {
+  final DateTime date;
+  final int cups;
+  final int totalMl;
+
+  const DayHistory({
+    required this.date,
+    required this.cups,
+    required this.totalMl,
+  });
+}
+
 class StatisticsRepository {
   DateTime _today() {
     final now = DateTime.now();
@@ -178,6 +190,31 @@ class StatisticsRepository {
       };
     } catch (e) {
       return empty;
+    }
+  }
+
+  /// Every day with drinks, newest first.
+  Future<List<DayHistory>> getHistory() async {
+    try {
+      final db = await AppDatabase.database;
+      final rows = await db.query(
+        'daily_hydration',
+        columns: ['date', 'consumed_cups', 'total_ml'],
+        where: 'total_ml > 0 OR consumed_cups > 0',
+        orderBy: 'date DESC',
+      );
+
+      return rows
+          .map(
+            (r) => DayHistory(
+              date: DateTime.parse(r['date'] as String),
+              cups: r['consumed_cups'] as int? ?? 0,
+              totalMl: r['total_ml'] as int? ?? 0,
+            ),
+          )
+          .toList();
+    } catch (e) {
+      return const [];
     }
   }
 

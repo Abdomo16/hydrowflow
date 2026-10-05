@@ -6,6 +6,9 @@ import 'package:hydrowflow/core/theme/app_theme.dart';
 import 'package:hydrowflow/features/reminders/data/models/reminder_sound.dart';
 import 'package:hydrowflow/features/reminders/logic/reminder_cubit.dart';
 import 'package:hydrowflow/features/reminders/logic/reminder_state.dart';
+import 'package:hydrowflow/features/reminders/logic/reminder_tier.dart';
+import 'package:hydrowflow/features/subscription/logic/pro_gate.dart';
+import 'package:hydrowflow/features/subscription/logic/subscription_cubit.dart';
 
 class SoundSelector extends StatelessWidget {
   const SoundSelector({super.key});
@@ -14,10 +17,18 @@ class SoundSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final sounds = ReminderSound.available;
 
+    final premium = context.select<SubscriptionCubit, bool>(
+      (c) => c.state.isPremium,
+    );
+
     return BlocBuilder<ReminderCubit, ReminderState>(
       buildWhen: (prev, curr) => prev.settings.sound != curr.settings.sound,
       builder: (context, state) {
         final cubit = context.read<ReminderCubit>();
+        final selectedId = ReminderTier.effectiveSound(
+          state.settings.sound,
+          premium: premium,
+        );
 
         final colors = context.colors;
 
@@ -36,8 +47,15 @@ class SoundSelector extends StatelessWidget {
             for (final sound in sounds)
               _SoundTile(
                 sound: sound,
-                selected: state.settings.sound == sound.id,
-                onSelect: () => cubit.changeSound(sound.id),
+                selected: selectedId == sound.id,
+                locked: !premium && !sound.isSystemDefault,
+                onSelect: () async {
+                  if (premium || sound.isSystemDefault) {
+                    await cubit.changeSound(sound.id);
+                  } else if (await ProGate.showPaywallIfLocked(context)) {
+                    await cubit.changeSound(sound.id);
+                  }
+                },
                 onPreview: () => cubit.previewSound(sound.id),
               ),
             if (Platform.isIOS)
@@ -58,12 +76,14 @@ class SoundSelector extends StatelessWidget {
 class _SoundTile extends StatelessWidget {
   final ReminderSound sound;
   final bool selected;
+  final bool locked;
   final VoidCallback onSelect;
   final VoidCallback onPreview;
 
   const _SoundTile({
     required this.sound,
     required this.selected,
+    required this.locked,
     required this.onSelect,
     required this.onPreview,
   });
@@ -97,6 +117,7 @@ class _SoundTile extends StatelessWidget {
                 style: TextStyle(color: colors.textPrimary, fontSize: 14),
               ),
             ),
+            if (locked) const ProBadge(),
             IconButton(
               tooltip: 'Preview',
               onPressed: onPreview,

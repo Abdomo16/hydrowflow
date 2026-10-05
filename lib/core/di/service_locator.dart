@@ -7,6 +7,7 @@ import 'package:hydrowflow/features/reminders/logic/reminder_coordinator.dart';
 import 'package:hydrowflow/features/settings/data/repositories/settings_repository.dart';
 import 'package:hydrowflow/features/statistics/data/repositories/statistics_repository.dart';
 import 'package:hydrowflow/features/subscription/data/repositories/subscription_repository.dart';
+import 'package:hydrowflow/features/subscription/logic/subscription_cubit.dart';
 
 final GetIt locator = GetIt.instance;
 
@@ -20,10 +21,14 @@ void setupLocator() {
     ..registerLazySingleton(StatisticsRepository.new)
     ..registerLazySingleton(SubscriptionRepository.new)
     ..registerLazySingleton(
+      () => SubscriptionCubit(locator<SubscriptionRepository>()),
+    )
+    ..registerLazySingleton(
       () => ReminderCoordinator(
         locator<ReminderRepository>(),
         locator<HydrationRepository>(),
         locator<UserProfileRepository>(),
+        isPremium: () => locator<SubscriptionCubit>().state.isPremium,
       ),
     );
 }

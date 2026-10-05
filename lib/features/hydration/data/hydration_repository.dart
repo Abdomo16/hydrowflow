@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:hydrowflow/database/app_database.dart';
+import 'models/drink_type.dart';
 import 'models/hydration_log.dart';
 
 class HydrationRepository {
@@ -26,7 +27,7 @@ class HydrationRepository {
     final db = await AppDatabase.database;
     final result = await db.rawQuery(
       '''
-      SELECT COALESCE(SUM(amount_ml), 0) as total_ml
+      SELECT COALESCE(SUM(COALESCE(hydration_ml, amount_ml)), 0) as total_ml
       FROM hydration_logs
       WHERE date = ?
       ''',
@@ -106,7 +107,10 @@ class HydrationRepository {
     return HydrationLog.fromMap(rows.first).createdAt;
   }
 
-  Future<HydrationLog> addDrink(int amountMl) async {
+  Future<HydrationLog> addDrink(
+    int amountMl, {
+    DrinkType type = DrinkType.water,
+  }) async {
     final db = await AppDatabase.database;
     final today = _today();
     final now = DateTime.now();
@@ -116,6 +120,7 @@ class HydrationRepository {
     final log = HydrationLog(
       date: today,
       amountMl: amountMl,
+      drinkType: type,
       createdAt: now,
     );
 

@@ -13,6 +13,9 @@ class ReminderSlot {
 /// Times are anchored to the last drink in the window (or the wake time if
 /// none yet) and repeat every [intervalMinutes], so rescheduling at any moment
 /// produces the same times until the user drinks again.
+///
+/// With [smart] off (free tier) drinks and the goal are ignored: reminders
+/// follow a fixed grid from the wake time.
 List<ReminderSlot> planReminders({
   required int intervalMinutes,
   required String wakeTime,
@@ -20,10 +23,15 @@ List<ReminderSlot> planReminders({
   required DateTime now,
   required bool goalReachedToday,
   DateTime? lastDrinkAt,
+  bool smart = true,
   int daysAhead = 3,
   int maxCount = 60,
 }) {
   if (intervalMinutes <= 0 || maxCount <= 0) return const [];
+  if (!smart) {
+    goalReachedToday = false;
+    lastDrinkAt = null;
+  }
 
   final interval = Duration(minutes: intervalMinutes);
   final earliest = now.add(const Duration(minutes: 1));

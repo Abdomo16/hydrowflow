@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -5,6 +6,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrowflow/core/ads/ad_service.dart';
+import 'package:hydrowflow/core/ads/daily_interstitial.dart';
 import 'package:hydrowflow/core/di/service_locator.dart';
 import 'package:hydrowflow/core/theme/app_theme.dart';
 import 'package:hydrowflow/features/settings/data/models/settings_model.dart';
@@ -14,6 +17,7 @@ import 'package:hydrowflow/features/settings/logic/settings_state.dart';
 import 'package:hydrowflow/database/app_database.dart';
 import 'package:hydrowflow/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:hydrowflow/features/subscription/data/repositories/subscription_repository.dart';
+import 'package:hydrowflow/features/subscription/logic/subscription_cubit.dart';
 import 'package:hydrowflow/core/navigation/main_navigation.dart';
 
 Future<void> main() async {
@@ -34,10 +38,13 @@ Future<void> main() async {
   } catch (e) {
     log('RevenueCat initialization skipped or failed: $e');
   }
+  await locator<SubscriptionCubit>().start();
 
   final settings = await locator<SettingsRepository>().load();
 
   runApp(MyApp(initialSettings: settings));
+
+  unawaited(AdService.init().then((_) => DailyInterstitial.preload()));
 }
 
 class MyApp extends StatelessWidget {
@@ -47,20 +54,31 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => SettingsCubit(
-        locator<SettingsRepository>(),
-        initial: initialSettings,
-      ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => SettingsCubit(
+            locator<SettingsRepository>(),
+            initial: initialSettings,
+          ),
+        ),
+        BlocProvider.value(value: locator<SubscriptionCubit>()),
+      ],
       child: BlocBuilder<SettingsCubit, SettingsState>(
         buildWhen: (prev, curr) =>
-            prev.settings.darkMode != curr.settings.darkMode,
+            prev.settings.darkMode != curr.settings.darkMode ||
+            prev.settings.palette != curr.settings.palette,
         builder: (context, state) {
+          final isPremium = context.select<SubscriptionCubit, bool>(
+            (c) => c.state.isPremium,
+          );
+          final palette = isPremium ? state.settings.palette : AppPalette.ocean;
+
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'HydroFlow',
-            theme: AppTheme.light,
-            darkTheme: AppTheme.dark,
+            theme: AppTheme.lightFor(palette),
+            darkTheme: AppTheme.darkFor(palette),
             themeMode: state.settings.darkMode
                 ? ThemeMode.dark
                 : ThemeMode.light,

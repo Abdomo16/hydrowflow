@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:hydrowflow/core/ads/banner_ad_bar.dart';
+import 'package:hydrowflow/core/ads/daily_interstitial.dart';
 import 'package:hydrowflow/core/app/logic/app_cubit.dart';
 import 'package:hydrowflow/core/di/service_locator.dart';
 
@@ -14,6 +16,9 @@ import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../features/statistics/data/repositories/statistics_repository.dart';
 import '../../features/statistics/logic/statistics_cubit.dart';
 import '../../features/statistics/presentation/screens/statistics_screen.dart';
+import '../../features/subscription/logic/subscription_cubit.dart';
+import '../../features/subscription/logic/subscription_state.dart';
+import '../../features/widget/widget_service.dart';
 
 import 'bottom_nav_bar.dart';
 import 'logic/navigation_cubit.dart';
@@ -32,25 +37,53 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation>
     with WidgetsBindingObserver {
   final _reminders = locator<ReminderCoordinator>();
+  final _subscription = locator<SubscriptionCubit>();
+  late final HydrationCubit _hydration;
 
   @override
   void initState() {
     super.initState();
+    _hydration = HydrationCubit(
+      dailyGoalLiters: widget.dailyGoal,
+      repository: locator<HydrationRepository>(),
+      onLogsChanged: _onLogsChanged,
+      onGoalReached: _onGoalReached,
+    );
     WidgetsBinding.instance.addObserver(this);
     NotificationService.init().then((_) => _reminders.reschedule());
+    WidgetService.init().then((_) => _refreshWidget());
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _hydration.close();
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      _subscription.checkTrialExpiry();
+      // Drinks may have been added from the home screen widget.
+      _hydration.loadToday();
       _reminders.reschedule();
+      _refreshWidget();
+      if (!_subscription.state.isPremium) DailyInterstitial.preload();
     }
+  }
+
+  Future<void> _refreshWidget() =>
+      WidgetService.refresh(premium: _subscription.state.isPremium);
+
+  Future<void> _onLogsChanged() async {
+    await _reminders.reschedule();
+    await _refreshWidget();
+  }
+
+  void _onGoalReached() {
+    if (_subscription.state.isPremium) return;
+    DailyInterstitial.maybeShow();
   }
 
   @override
@@ -61,13 +94,7 @@ class _MainNavigationState extends State<MainNavigation>
 
         BlocProvider(create: (_) => AppCubit(widget.dailyGoal)),
 
-        BlocProvider(
-          create: (_) => HydrationCubit(
-            dailyGoalLiters: widget.dailyGoal,
-            repository: locator<HydrationRepository>(),
-            onLogsChanged: _reminders.reschedule,
-          ),
-        ),
+        BlocProvider.value(value: _hydration),
 
         BlocProvider(
           create: (_) => StatisticsCubit(
@@ -76,15 +103,28 @@ class _MainNavigationState extends State<MainNavigation>
           ),
         ),
       ],
-      child: BlocListener<AppCubit, double>(
-        listener: (context, newGoal) {
-          context.read<HydrationCubit>().updateGoal(newGoal);
-          _reminders.reschedule();
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AppCubit, double>(
+            listener: (context, newGoal) {
+              context.read<HydrationCubit>().updateGoal(newGoal);
+              _reminders.reschedule();
+              _refreshWidget();
 
-          context.read<StatisticsCubit>().updateTarget(
-            (newGoal * 1000 / 250).round(),
-          );
-        },
+              context.read<StatisticsCubit>().updateTarget(
+                (newGoal * 1000 / 250).round(),
+              );
+            },
+          ),
+          BlocListener<SubscriptionCubit, SubscriptionState>(
+            listenWhen: (prev, curr) => prev.isPremium != curr.isPremium,
+            listener: (context, state) {
+              _reminders.reschedule();
+              _refreshWidget();
+              if (!state.isPremium) DailyInterstitial.preload();
+            },
+          ),
+        ],
         child: BlocConsumer<NavigationCubit, NavigationState>(
           listener: (context, state) {
             if (state.index == 1) {
@@ -101,9 +141,15 @@ class _MainNavigationState extends State<MainNavigation>
 
             return Scaffold(
               body: IndexedStack(index: state.index, children: pages),
-              bottomNavigationBar: AppBottomNavBar(
-                currentIndex: state.index,
-                onTap: (i) => context.read<NavigationCubit>().changeTab(i),
+              bottomNavigationBar: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const BannerAdBar(),
+                  AppBottomNavBar(
+                    currentIndex: state.index,
+                    onTap: (i) => context.read<NavigationCubit>().changeTab(i),
+                  ),
+                ],
               ),
             );
           },

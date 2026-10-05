@@ -4,17 +4,19 @@ import '../logic/subscription_cubit.dart';
 import '../logic/subscription_state.dart';
 import '../presentation/screens/paywall_screen.dart';
 
-/// Wrap any widget (button, tile, etc.) to require Pro.
-/// If the user is not Pro, tapping shows the paywall instead.
+/// Wrap any widget (button, tile, etc.) to require Premium.
+/// If the user is not Premium, tapping shows the paywall instead.
 class ProGate extends StatelessWidget {
   final Widget child;
   final VoidCallback? onProUnlocked;
 
   const ProGate({super.key, required this.child, this.onProUnlocked});
 
+  static bool isPremium(BuildContext context) =>
+      context.read<SubscriptionCubit>().state.isPremium;
+
   static Future<bool> showPaywallIfLocked(BuildContext context) async {
-    final cubit = context.read<SubscriptionCubit>();
-    if (cubit.state.isPro) return true;
+    if (isPremium(context)) return true;
 
     final unlocked = await Navigator.of(context).push<bool>(
       MaterialPageRoute(builder: (_) => const PaywallScreen()),
@@ -25,8 +27,9 @@ class ProGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SubscriptionCubit, SubscriptionState>(
+      buildWhen: (prev, curr) => prev.isPremium != curr.isPremium,
       builder: (context, state) {
-        if (state.isPro) return child;
+        if (state.isPremium) return child;
 
         return GestureDetector(
           onTap: () async {
@@ -36,7 +39,7 @@ class ProGate extends StatelessWidget {
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              child,
+              AbsorbPointer(child: child),
               const Positioned(
                 top: 6,
                 right: 8,
