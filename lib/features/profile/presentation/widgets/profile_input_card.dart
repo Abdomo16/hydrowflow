@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
 
 class ProfileInputCard extends StatelessWidget {
   final String label;
@@ -15,30 +16,31 @@ class ProfileInputCard extends StatelessWidget {
     this.errorText,
     required this.onChanged,
   });
+
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: Colors.white70,
+          style: TextStyle(
+            color: colors.textSecondary,
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 6),
         Container(
-          height: 55, // was 65
+          height: 55,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: const Color(0xFF1B2633),
+            color: colors.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: errorText != null
-                  ? Colors.red
-                  : const Color(0xFF3A8DFF).withValues(alpha: 0.2),
+              color: errorText != null ? colors.danger : colors.border,
             ),
           ),
           child: Row(
@@ -49,8 +51,8 @@ class ProfileInputCard extends StatelessWidget {
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: colors.textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -63,7 +65,7 @@ class ProfileInputCard extends StatelessWidget {
               ),
               Text(
                 unit,
-                style: const TextStyle(color: Colors.white54, fontSize: 15),
+                style: TextStyle(color: colors.textSecondary, fontSize: 15),
               ),
             ],
           ),
@@ -72,7 +74,7 @@ class ProfileInputCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             errorText!,
-            style: const TextStyle(color: Colors.redAccent, fontSize: 12),
+            style: TextStyle(color: colors.danger, fontSize: 12),
           ),
         ],
       ],
