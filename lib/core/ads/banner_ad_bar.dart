@@ -40,8 +40,14 @@ class _BannerSlotState extends State<_BannerSlot> {
 
   Future<void> _load(int width) async {
     _loadedWidth = width;
-    final size =
-        await AdSize.getLargeAnchoredAdaptiveBannerAdSize(width);
+    final orientation = MediaQuery.orientationOf(context);
+    // The shorter banner. The package marks this deprecated in favor of the
+    // large size, which is the tall bar we are avoiding.
+    // ignore: deprecated_member_use
+    final size = await AdSize.getAnchoredAdaptiveBannerAdSize(
+      orientation,
+      width,
+    );
     if (!mounted || size == null) return;
 
     await _ad?.dispose();
