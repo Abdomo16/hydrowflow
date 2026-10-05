@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hydrowflow/core/ads/ad_ids.dart';
 import 'package:hydrowflow/core/ads/ad_service.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
 import 'package:hydrowflow/features/subscription/logic/subscription_cubit.dart';
 
 /// Anchored adaptive banner for free users. Renders nothing for Premium.
@@ -29,27 +30,19 @@ class _BannerSlot extends StatefulWidget {
 class _BannerSlotState extends State<_BannerSlot> {
   BannerAd? _ad;
   bool _loaded = false;
-  int? _loadedWidth;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final width = MediaQuery.sizeOf(context).width.truncate();
-    if (width != _loadedWidth) _load(width);
+  void initState() {
+    super.initState();
+    _load();
   }
 
-  Future<void> _load(int width) async {
-    _loadedWidth = width;
-    final size =
-        await AdSize.getLargeAnchoredAdaptiveBannerAdSize(width);
-    if (!mounted || size == null) return;
-
-    await _ad?.dispose();
-    _loaded = false;
-
+  /// Standard 320x50 banner: the smallest size, so it stays slimmer than
+  /// the navigation bar.
+  void _load() {
     _ad = BannerAd(
       adUnitId: AdIds.banner,
-      size: size,
+      size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (_) {
@@ -74,10 +67,16 @@ class _BannerSlotState extends State<_BannerSlot> {
     final ad = _ad;
     if (ad == null || !_loaded) return const SizedBox.shrink();
 
-    return SizedBox(
-      width: ad.size.width.toDouble(),
-      height: ad.size.height.toDouble(),
-      child: AdWidget(ad: ad),
+    return ColoredBox(
+      color: context.colors.navBar,
+      child: Center(
+        heightFactor: 1,
+        child: SizedBox(
+          width: ad.size.width.toDouble(),
+          height: ad.size.height.toDouble(),
+          child: AdWidget(ad: ad),
+        ),
+      ),
     );
   }
 }
