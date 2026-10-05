@@ -16,18 +16,24 @@ void main() {
       final settings = await repository.load();
 
       expect(settings.unit, AppUnit.metric);
-      expect(settings.darkMode, true);
+      expect(settings.darkMode, false);
+      expect(settings.cupSizeMl, SettingsModel.defaultCupSizeMl);
     });
 
     test('persists and reloads settings', () async {
       await repository.save(
-        const SettingsModel(unit: AppUnit.imperial, darkMode: false),
+        const SettingsModel(
+          unit: AppUnit.imperial,
+          darkMode: true,
+          cupSizeMl: 330,
+        ),
       );
 
       final settings = await repository.load();
 
       expect(settings.unit, AppUnit.imperial);
-      expect(settings.darkMode, false);
+      expect(settings.darkMode, true);
+      expect(settings.cupSizeMl, 330);
     });
   });
 }

@@ -6,8 +6,13 @@ import 'settings_state.dart';
 class SettingsCubit extends Cubit<SettingsState> {
   final SettingsRepository repository;
 
-  SettingsCubit(this.repository) : super(SettingsState.initial()) {
-    load();
+  SettingsCubit(this.repository, {SettingsModel? initial})
+    : super(
+        initial == null
+            ? SettingsState.initial()
+            : SettingsState(settings: initial),
+      ) {
+    if (initial == null) load();
   }
 
   Future<void> load() async {
@@ -23,6 +28,12 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   Future<void> toggleDarkMode(bool value) async {
     final updated = state.settings.copyWith(darkMode: value);
+    await _save(updated);
+  }
+
+  Future<void> setCupSize(int ml) async {
+    if (ml <= 0) return;
+    final updated = state.settings.copyWith(cupSizeMl: ml);
     await _save(updated);
   }
 
