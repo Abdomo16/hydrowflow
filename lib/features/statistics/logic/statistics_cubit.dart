@@ -31,7 +31,7 @@ class StatisticsCubit extends Cubit<StatisticsState> {
       final totalWeekly = weekly.fold(0, (a, b) => a + b);
       final daysWithData = weekly.where((c) => c > 0).length;
 
-      final hydrationScore = totalWeekly == 0 || daysWithData == 0
+      final hydrationScore = targetCups <= 0 || daysWithData == 0
           ? 0.0
           : (totalWeekly / (targetCups * daysWithData)) * 100;
 
@@ -45,10 +45,11 @@ class StatisticsCubit extends Cubit<StatisticsState> {
           completionRate: monthly['completion'] as double,
           bestDay: monthly['bestDay'] as String,
           loading: false,
+          hasLoaded: true,
         ),
       );
     } catch (e) {
-      emit(state.copyWith(loading: false));
+      emit(state.copyWith(loading: false, hasLoaded: true));
     }
   }
 

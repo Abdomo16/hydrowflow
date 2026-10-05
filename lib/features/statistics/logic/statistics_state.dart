@@ -10,6 +10,7 @@ class StatisticsState {
   final double completionRate;
   final String bestDay;
   final bool loading;
+  final bool hasLoaded;
 
   const StatisticsState({
     required this.view,
@@ -21,6 +22,7 @@ class StatisticsState {
     required this.completionRate,
     required this.bestDay,
     required this.loading,
+    this.hasLoaded = false,
   });
 
   factory StatisticsState.initial() {
@@ -47,6 +49,7 @@ class StatisticsState {
     double? completionRate,
     String? bestDay,
     bool? loading,
+    bool? hasLoaded,
   }) {
     return StatisticsState(
       view: view ?? this.view,
@@ -58,6 +61,7 @@ class StatisticsState {
       completionRate: completionRate ?? this.completionRate,
       bestDay: bestDay ?? this.bestDay,
       loading: loading ?? this.loading,
+      hasLoaded: hasLoaded ?? this.hasLoaded,
     );
   }
 }
