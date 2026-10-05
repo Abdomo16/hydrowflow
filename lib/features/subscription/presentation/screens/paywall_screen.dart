@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrowflow/core/di/service_locator.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
 import '../../data/repositories/subscription_repository.dart';
 import '../../logic/subscription_cubit.dart';
 import '../../logic/subscription_state.dart';
@@ -56,13 +57,12 @@ class _PaywallView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0E1621),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0E1621),
-        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white),
+          icon: const Icon(Icons.close),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -93,36 +93,35 @@ class _PaywallView extends StatelessWidget {
                     size: 64,
                   ),
                   const SizedBox(height: 12),
-                  const Text(
+                  Text(
                     'HydroFlow Pro',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: colors.textPrimary,
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Unlock everything, stay hydrated everywhere.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white54, fontSize: 14),
+                    style: TextStyle(color: colors.textSecondary, fontSize: 14),
                   ),
                   const SizedBox(height: 28),
 
-                  ..._proFeatures.map(_featureTile),
+                  for (final feature in _proFeatures)
+                    _featureTile(colors, feature),
 
                   const SizedBox(height: 28),
 
                   if (state.loading)
-                    const Center(
-                      child: CircularProgressIndicator(color: Color(0xFF2F8BEF)),
-                    )
+                    const Center(child: CircularProgressIndicator())
                   else if (state.planLabels.isEmpty)
-                    const Text(
+                    Text(
                       'Plans are not available yet. Please try again later.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white38, fontSize: 13),
+                      style: TextStyle(color: colors.textMuted, fontSize: 13),
                     )
                   else
                     ...List.generate(state.planLabels.length, (i) {
@@ -135,26 +134,26 @@ class _PaywallView extends StatelessWidget {
                                 ? null
                                 : () => cubit.purchasePackage(i),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2F8BEF),
-                              disabledBackgroundColor: const Color(0xFF2F8BEF)
+                              backgroundColor: colors.primary,
+                              disabledBackgroundColor: colors.primary
                                   .withValues(alpha: 0.4),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
                             ),
                             child: state.purchasing
-                                ? const SizedBox(
+                                ? SizedBox(
                                     width: 22,
                                     height: 22,
                                     child: CircularProgressIndicator(
-                                      color: Colors.white,
+                                      color: colors.onPrimary,
                                       strokeWidth: 2,
                                     ),
                                   )
                                 : Text(
                                     state.planLabels[i],
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: colors.onPrimary,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 15,
                                     ),
@@ -167,16 +166,16 @@ class _PaywallView extends StatelessWidget {
                   TextButton(
                     onPressed:
                         state.purchasing ? null : cubit.restorePurchases,
-                    child: const Text(
+                    child: Text(
                       'Restore Purchases',
-                      style: TextStyle(color: Colors.white54),
+                      style: TextStyle(color: colors.textSecondary),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Cancel anytime. Payment is charged to your app store account.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white24, fontSize: 11),
+                    style: TextStyle(color: colors.textMuted, fontSize: 11),
                   ),
                   const SizedBox(height: 24),
                 ],
@@ -188,7 +187,7 @@ class _PaywallView extends StatelessWidget {
     );
   }
 
-  Widget _featureTile((IconData, String, String) feature) {
+  Widget _featureTile(AppColors colors, (IconData, String, String) feature) {
     final (icon, title, subtitle) = feature;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -198,10 +197,10 @@ class _PaywallView extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: const Color(0xFF1B2633),
+              color: colors.primarySoft,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: const Color(0xFF2F8BEF), size: 22),
+            child: Icon(icon, color: colors.primary, size: 22),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -210,8 +209,8 @@ class _PaywallView extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: colors.textPrimary,
                     fontWeight: FontWeight.w700,
                     fontSize: 14,
                   ),
@@ -219,10 +218,7 @@ class _PaywallView extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: const TextStyle(
-                    color: Colors.white54,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: colors.textSecondary, fontSize: 12),
                 ),
               ],
             ),

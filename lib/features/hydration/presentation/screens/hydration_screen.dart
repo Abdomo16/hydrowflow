@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
 import 'package:hydrowflow/features/hydration/presentation/widgets/add_cup_button.dart';
 import 'package:hydrowflow/features/hydration/presentation/widgets/today_log_list.dart';
 import 'package:hydrowflow/features/hydration/presentation/widgets/water_glass.dart';
@@ -12,21 +13,10 @@ class HydrationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0E1621),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0E1621),
-        elevation: 0,
-        centerTitle: true,
-        title: const Text(
-          'Hydration Tracker',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ),
+      appBar: AppBar(title: const Text('Hydration Tracker')),
 
       body: BlocConsumer<HydrationCubit, HydrationState>(
         listener: (context, state) {
@@ -50,9 +40,10 @@ class HydrationScreen extends StatelessWidget {
                 RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
-                    style: const TextStyle(
+                    style: TextStyle(
+                      fontFamily: 'Inter',
                       fontSize: 28,
-                      color: Colors.white,
+                      color: colors.textPrimary,
                       fontWeight: FontWeight.w600,
                     ),
                     children: [
@@ -60,7 +51,7 @@ class HydrationScreen extends StatelessWidget {
                       TextSpan(
                         text:
                             '${state.dailyGoalLiters.toStringAsFixed(1)} Liters',
-                        style: const TextStyle(color: Colors.blue),
+                        style: TextStyle(color: colors.primary),
                       ),
                       const TextSpan(text: '\ntoday'),
                     ],
@@ -71,7 +62,7 @@ class HydrationScreen extends StatelessWidget {
 
                 Text(
                   '= ${state.totalCups} cups (${state.consumedMl} ml logged)',
-                  style: const TextStyle(color: Colors.white54, fontSize: 14),
+                  style: TextStyle(color: colors.textSecondary, fontSize: 14),
                 ),
 
                 const SizedBox(height: 32),
@@ -83,32 +74,36 @@ class HydrationScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Daily Progress',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: colors.textPrimary,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
                     RichText(
                       text: TextSpan(
+                        style: const TextStyle(fontFamily: 'Inter'),
                         children: [
                           TextSpan(
                             text: '${state.consumedCups}',
-                            style: const TextStyle(
-                              color: Colors.blue,
+                            style: TextStyle(
+                              color: colors.primary,
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
-                          const TextSpan(
+                          TextSpan(
                             text: ' / ',
-                            style: TextStyle(color: Colors.white, fontSize: 13),
+                            style: TextStyle(
+                              color: colors.textPrimary,
+                              fontSize: 13,
+                            ),
                           ),
                           TextSpan(
                             text: '${state.totalCups} cups',
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: colors.textPrimary,
                               fontSize: 13,
                               fontWeight: FontWeight.w400,
                             ),
@@ -126,15 +121,15 @@ class HydrationScreen extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: state.progress,
                     minHeight: 9,
-                    backgroundColor: const Color(0xFF1F2937),
-                    valueColor: const AlwaysStoppedAnimation(Colors.blue),
+                    backgroundColor: colors.surfaceAlt,
+                    valueColor: AlwaysStoppedAnimation(colors.primary),
                   ),
                 ),
 
                 const SizedBox(height: 8),
                 Text(
                   state.motivationMessage,
-                  style: const TextStyle(color: Colors.white54, fontSize: 13),
+                  style: TextStyle(color: colors.textSecondary, fontSize: 13),
                 ),
 
                 const SizedBox(height: 32),

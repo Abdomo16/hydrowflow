@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
 import '../../logic/onboarding_cubit.dart';
 
 enum MetricType { height, weight }
@@ -52,6 +53,7 @@ class _MetricCardState extends State<MetricCard> {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<OnboardingCubit>();
+    final colors = context.colors;
 
     return Expanded(
       child: Column(
@@ -59,8 +61,8 @@ class _MetricCardState extends State<MetricCard> {
         children: [
           Text(
             widget.label,
-            style: const TextStyle(
-              color: Colors.white54,
+            style: TextStyle(
+              color: colors.textSecondary,
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
@@ -72,18 +74,18 @@ class _MetricCardState extends State<MetricCard> {
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
             ],
-            cursorColor: Colors.blue,
-            style: const TextStyle(
-              color: Colors.white,
+            cursorColor: colors.primary,
+            style: TextStyle(
+              color: colors.textPrimary,
               fontSize: 18,
               fontWeight: FontWeight.w400,
             ),
             decoration: InputDecoration(
               filled: true,
-              fillColor: const Color(0xFF1E2533),
+              fillColor: colors.surface,
               hintText: _isHeight ? '180' : '75',
               hintStyle: TextStyle(
-                color: Colors.white.withValues(alpha: 0.35),
+                color: colors.textMuted,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
@@ -93,7 +95,15 @@ class _MetricCardState extends State<MetricCard> {
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(24),
-                borderSide: BorderSide.none,
+                borderSide: BorderSide(color: colors.border),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(24),
+                borderSide: BorderSide(color: colors.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(24),
+                borderSide: BorderSide(color: colors.primary, width: 1.5),
               ),
               errorText: _errorText,
               errorStyle: const TextStyle(fontSize: 10),

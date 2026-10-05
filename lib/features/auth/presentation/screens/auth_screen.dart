@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrowflow/core/di/service_locator.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../logic/auth_cubit.dart';
 import '../../logic/auth_state.dart';
@@ -29,10 +30,11 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return BlocProvider(
       create: (_) => AuthCubit(locator<AuthRepository>()),
       child: Scaffold(
-        backgroundColor: const Color(0xFF0E1621),
         body: BlocConsumer<AuthCubit, AuthState>(
           listener: (context, state) {
             if (state.error != null) {
@@ -54,26 +56,25 @@ class _AuthScreenState extends State<AuthScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Icon(
-                          Icons.water_drop,
-                          color: Color(0xFF2F8BEF),
-                          size: 56,
-                        ),
+                        Icon(Icons.water_drop, color: colors.primary, size: 56),
                         const SizedBox(height: 12),
                         Text(
                           isSignUp ? 'Create Account' : 'Welcome Back',
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: colors.textPrimary,
                             fontSize: 26,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 6),
-                        const Text(
+                        Text(
                           'Track your hydration anywhere, on any device.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.white54, fontSize: 14),
+                          style: TextStyle(
+                            color: colors.textSecondary,
+                            fontSize: 14,
+                          ),
                         ),
                         const SizedBox(height: 36),
 
@@ -97,20 +98,18 @@ class _AuthScreenState extends State<AuthScreen> {
 
                         const SizedBox(height: 28),
                         Row(
-                          children: const [
-                            Expanded(
-                              child: Divider(color: Colors.white12),
-                            ),
+                          children: [
+                            Expanded(child: Divider(color: colors.border)),
                             Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 12),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
                               child: Text(
                                 'or',
-                                style: TextStyle(color: Colors.white38),
+                                style: TextStyle(color: colors.textMuted),
                               ),
                             ),
-                            Expanded(
-                              child: Divider(color: Colors.white12),
-                            ),
+                            Expanded(child: Divider(color: colors.border)),
                           ],
                         ),
                         const SizedBox(height: 28),
@@ -118,8 +117,8 @@ class _AuthScreenState extends State<AuthScreen> {
                         TextFormField(
                           controller: emailController,
                           keyboardType: TextInputType.emailAddress,
-                          style: const TextStyle(color: Colors.white),
-                          decoration: _inputDecoration('Email'),
+                          style: TextStyle(color: colors.textPrimary),
+                          decoration: _inputDecoration(colors, 'Email'),
                           validator: (v) {
                             if (v == null || !v.contains('@')) {
                               return 'Enter a valid email';
@@ -131,8 +130,8 @@ class _AuthScreenState extends State<AuthScreen> {
                         TextFormField(
                           controller: passwordController,
                           obscureText: true,
-                          style: const TextStyle(color: Colors.white),
-                          decoration: _inputDecoration('Password'),
+                          style: TextStyle(color: colors.textPrimary),
+                          decoration: _inputDecoration(colors, 'Password'),
                           validator: (v) {
                             if (v == null || v.length < 6) {
                               return 'Password must be at least 6 characters';
@@ -147,26 +146,26 @@ class _AuthScreenState extends State<AuthScreen> {
                           child: ElevatedButton(
                             onPressed: state.loading ? null : _submitEmail,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2F8BEF),
-                              disabledBackgroundColor: const Color(0xFF2F8BEF)
+                              backgroundColor: colors.primary,
+                              disabledBackgroundColor: colors.primary
                                   .withValues(alpha: 0.4),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
                             ),
                             child: state.loading
-                                ? const SizedBox(
+                                ? SizedBox(
                                     width: 22,
                                     height: 22,
                                     child: CircularProgressIndicator(
-                                      color: Colors.white,
+                                      color: colors.onPrimary,
                                       strokeWidth: 2,
                                     ),
                                   )
                                 : Text(
                                     isSignUp ? 'Sign Up' : 'Sign In',
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: colors.onPrimary,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
                                     ),
@@ -182,7 +181,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             isSignUp
                                 ? 'Already have an account? Sign In'
                                 : "Don't have an account? Sign Up",
-                            style: const TextStyle(color: Color(0xFF2F8BEF)),
+                            style: TextStyle(color: colors.primary),
                           ),
                         ),
                         if (!isSignUp)
@@ -202,18 +201,18 @@ class _AuthScreenState extends State<AuthScreen> {
                                 );
                               }
                             },
-                            child: const Text(
+                            child: Text(
                               'Forgot Password?',
-                              style: TextStyle(color: Colors.white38),
+                              style: TextStyle(color: colors.textMuted),
                             ),
                           ),
 
                         const SizedBox(height: 18),
                         TextButton(
                           onPressed: () => Navigator.pop(context),
-                          child: const Text(
+                          child: Text(
                             'Continue without an account',
-                            style: TextStyle(color: Colors.white38),
+                            style: TextStyle(color: colors.textMuted),
                           ),
                         ),
                       ],
@@ -238,16 +237,21 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  InputDecoration _inputDecoration(String hint) {
+  InputDecoration _inputDecoration(AppColors colors, String hint) {
+    OutlineInputBorder border(Color color, [double width = 1]) =>
+        OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: color, width: width),
+        );
+
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: Colors.white38),
+      hintStyle: TextStyle(color: colors.textMuted),
       filled: true,
-      fillColor: const Color(0xFF1B2633),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide.none,
-      ),
+      fillColor: colors.surface,
+      border: border(colors.border),
+      enabledBorder: border(colors.border),
+      focusedBorder: border(colors.primary, 1.5),
       contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
     );
   }
@@ -266,21 +270,23 @@ class _SocialButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return SizedBox(
       height: 54,
       child: OutlinedButton.icon(
         onPressed: onTap,
-        icon: Icon(icon, color: Colors.white, size: 28),
+        icon: Icon(icon, color: colors.textPrimary, size: 28),
         label: Text(
           label,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: colors.textPrimary,
             fontWeight: FontWeight.w600,
           ),
         ),
         style: OutlinedButton.styleFrom(
-          backgroundColor: const Color(0xFF1B2633),
-          side: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+          backgroundColor: colors.surface,
+          side: BorderSide(color: colors.border),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
