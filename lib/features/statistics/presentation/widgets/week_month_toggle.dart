@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
 import '../../logic/statistics_cubit.dart';
 import '../../logic/statistics_state.dart';
 
@@ -13,7 +14,7 @@ class WeekMonthToggle extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: const Color(0xFF16202A),
+            color: context.colors.surfaceAlt,
             borderRadius: BorderRadius.circular(24),
           ),
           child: Row(
@@ -51,6 +52,8 @@ class _Tab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
@@ -58,16 +61,23 @@ class _Tab extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: selected
-                ? const Color.fromARGB(255, 19, 28, 37)
-                : Colors.transparent,
+            color: selected ? colors.surface : Colors.transparent,
             borderRadius: BorderRadius.circular(18),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: colors.shadow,
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: Center(
             child: Text(
               label,
               style: TextStyle(
-                color: selected ? Colors.white : Colors.white54,
+                color: selected ? colors.primary : colors.textSecondary,
                 fontWeight: FontWeight.w700,
               ),
             ),

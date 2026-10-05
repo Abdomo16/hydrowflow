@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrowflow/core/di/service_locator.dart';
 import 'package:hydrowflow/features/onboarding/data/repositories/user_profile_repository.dart';
 
 import 'onboarding_state.dart';
@@ -9,7 +10,7 @@ import '../../../utils/water_calculator.dart';
 class OnboardingCubit extends Cubit<OnboardingState> {
   OnboardingCubit() : super(OnboardingState.initial());
 
-  final UserProfileRepository _repository = UserProfileRepository();
+  final UserProfileRepository _repository = locator<UserProfileRepository>();
 
   // Update Height
   void updateHeight(double value) {

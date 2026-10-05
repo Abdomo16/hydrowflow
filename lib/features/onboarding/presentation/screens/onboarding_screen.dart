@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hydrowflow/features/onboarding/presentation/widgets/_ActivityTile.dart';
-import 'package:hydrowflow/features/onboarding/presentation/widgets/_MetricCard.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
+import 'package:hydrowflow/features/onboarding/presentation/widgets/activity_tile.dart';
+import 'package:hydrowflow/features/onboarding/presentation/widgets/metric_card.dart';
 import '../../logic/onboarding_cubit.dart';
 import '../../logic/onboarding_state.dart';
 import '../../data/models/onboarding_model.dart';
@@ -12,10 +13,11 @@ class OnboardingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return BlocProvider(
       create: (_) => OnboardingCubit(),
       child: Scaffold(
-        backgroundColor: const Color(0xFF0E1621),
         body: SafeArea(
           child: BlocBuilder<OnboardingCubit, OnboardingState>(
             builder: (context, state) {
@@ -28,38 +30,17 @@ class OnboardingScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      //  Back + Title
                       SizedBox(
                         height: 32,
-                        child: Stack(
-                          children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: IconButton(
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                                icon: const Icon(
-                                  Icons.chevron_left,
-                                  size: 33,
-                                  color: Color(0xFF2864A9),
-                                ),
-                                onPressed: () => Navigator.pop(context),
-                              ),
+                        child: Center(
+                          child: Text(
+                            'Profile Setup',
+                            style: TextStyle(
+                              color: colors.textPrimary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
                             ),
-                            const Center(
-                              child: Padding(
-                                padding: EdgeInsets.only(bottom: 2),
-                                child: Text(
-                                  'Profile Setup',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
 
@@ -68,17 +49,20 @@ class OnboardingScreen extends StatelessWidget {
                       //  Step Row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const [
+                        children: [
                           Text(
                             'ONBOARDING',
                             style: TextStyle(
-                              color: Color(0xFF95A2B9),
+                              color: colors.textMuted,
                               fontSize: 12,
                             ),
                           ),
                           Text(
                             'Step 1 of 2',
-                            style: TextStyle(color: Colors.blue, fontSize: 13),
+                            style: TextStyle(
+                              color: colors.primary,
+                              fontSize: 13,
+                            ),
                           ),
                         ],
                       ),
@@ -88,20 +72,20 @@ class OnboardingScreen extends StatelessWidget {
                       //  Progress Bar
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: const LinearProgressIndicator(
+                        child: LinearProgressIndicator(
                           value: 0.5,
                           minHeight: 6,
-                          backgroundColor: Color(0xFF1F2937),
-                          valueColor: AlwaysStoppedAnimation(Color(0xFF2864A9)),
+                          backgroundColor: colors.surfaceAlt,
+                          valueColor: AlwaysStoppedAnimation(colors.primary),
                         ),
                       ),
 
                       const SizedBox(height: 24),
 
-                      const Text(
+                      Text(
                         'Personal Details',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: colors.textPrimary,
                           fontSize: 28,
                           fontWeight: FontWeight.w700,
                         ),
@@ -109,12 +93,12 @@ class OnboardingScreen extends StatelessWidget {
 
                       const SizedBox(height: 6),
 
-                      const Text(
+                      Text(
                         'Help us tailor your hydration plan based on your physical stats.',
                         textAlign: TextAlign.center,
                         maxLines: 2,
                         style: TextStyle(
-                          color: Colors.white54,
+                          color: colors.textSecondary,
                           fontWeight: FontWeight.w400,
                           fontSize: 14,
                           height: 1.5,
@@ -123,9 +107,9 @@ class OnboardingScreen extends StatelessWidget {
 
                       const SizedBox(height: 30),
 
-                      // 🔹 Height & Weight
-                      Row(
-                        children: const [
+                      // Height & Weight
+                      const Row(
+                        children: [
                           MetricCard(
                             label: 'HEIGHT (CM)',
                             type: MetricType.height,
@@ -140,9 +124,12 @@ class OnboardingScreen extends StatelessWidget {
 
                       const SizedBox(height: 30),
 
-                      const Text(
+                      Text(
                         'DAILY ACTIVITY LEVEL',
-                        style: TextStyle(color: Colors.white54, fontSize: 12),
+                        style: TextStyle(
+                          color: colors.textSecondary,
+                          fontSize: 12,
+                        ),
                       ),
 
                       const SizedBox(height: 12),
@@ -183,8 +170,9 @@ class OnboardingScreen extends StatelessWidget {
                                   final dailyGoal = await cubit
                                       .finishOnboarding();
 
-                                  if (dailyGoal == null || !context.mounted)
+                                  if (dailyGoal == null || !context.mounted) {
                                     return;
+                                  }
 
                                   Navigator.pushReplacement(
                                     context,
@@ -196,18 +184,18 @@ class OnboardingScreen extends StatelessWidget {
                                 }
                               : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            disabledBackgroundColor: Colors.blue.withOpacity(
-                              0.3,
+                            backgroundColor: colors.primary,
+                            disabledBackgroundColor: colors.primary.withValues(
+                              alpha: 0.3,
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Calculate My Goal',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: colors.onPrimary,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),

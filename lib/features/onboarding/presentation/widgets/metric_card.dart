@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
 import '../../logic/onboarding_cubit.dart';
 
 enum MetricType { height, weight }
@@ -17,6 +18,7 @@ class MetricCard extends StatefulWidget {
 
 class _MetricCardState extends State<MetricCard> {
   late final TextEditingController _controller;
+  String? _errorText;
 
   @override
   void initState() {
@@ -30,9 +32,28 @@ class _MetricCardState extends State<MetricCard> {
     super.dispose();
   }
 
+  bool get _isHeight => widget.type == MetricType.height;
+
+  String? _validate(double? value) {
+    if (value == null) return null;
+
+    if (_isHeight) {
+      if (value < 100 || value > 250) {
+        return 'Height must be 100-250 cm';
+      }
+    } else {
+      if (value < 30 || value > 250) {
+        return 'Weight must be 30-250 kg';
+      }
+    }
+
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<OnboardingCubit>();
+    final colors = context.colors;
 
     return Expanded(
       child: Column(
@@ -40,8 +61,8 @@ class _MetricCardState extends State<MetricCard> {
         children: [
           Text(
             widget.label,
-            style: const TextStyle(
-              color: Colors.white54,
+            style: TextStyle(
+              color: colors.textSecondary,
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
@@ -53,18 +74,18 @@ class _MetricCardState extends State<MetricCard> {
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
             ],
-            cursorColor: Colors.blue,
-            style: const TextStyle(
-              color: Colors.white,
+            cursorColor: colors.primary,
+            style: TextStyle(
+              color: colors.textPrimary,
               fontSize: 18,
               fontWeight: FontWeight.w400,
             ),
             decoration: InputDecoration(
               filled: true,
-              fillColor: const Color(0xFF1E2533),
-              hintText: widget.type == MetricType.height ? '180' : '75',
+              fillColor: colors.surface,
+              hintText: _isHeight ? '180' : '75',
               hintStyle: TextStyle(
-                color: Colors.white.withOpacity(0.35),
+                color: colors.textMuted,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
@@ -74,20 +95,34 @@ class _MetricCardState extends State<MetricCard> {
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(24),
-                borderSide: BorderSide.none,
+                borderSide: BorderSide(color: colors.border),
               ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(24),
+                borderSide: BorderSide(color: colors.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(24),
+                borderSide: BorderSide(color: colors.primary, width: 1.5),
+              ),
+              errorText: _errorText,
+              errorStyle: const TextStyle(fontSize: 10),
             ),
             onChanged: (value) {
               final parsed = double.tryParse(value);
-              if (parsed == null || parsed <= 0) return;
+              if (parsed == null || parsed <= 0) {
+                setState(() => _errorText = null);
+                return;
+              }
 
-              if (widget.type == MetricType.height) {
-                // realistic height range
-                if (parsed < 100 || parsed > 250) return;
+              final error = _validate(parsed);
+              setState(() => _errorText = error);
+
+              if (error != null) return;
+
+              if (_isHeight) {
                 cubit.updateHeight(parsed);
               } else {
-                // realistic weight range
-                if (parsed < 30 || parsed > 250) return;
                 cubit.updateWeight(parsed);
               }
             },

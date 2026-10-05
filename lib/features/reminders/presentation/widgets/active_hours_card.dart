@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
 import 'package:hydrowflow/features/reminders/logic/reminder_cubit.dart';
 
 class ActiveHoursCard extends StatelessWidget {
@@ -15,10 +16,10 @@ class ActiveHoursCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Active Hours',
           style: TextStyle(
-            color: Colors.white,
+            color: context.colors.textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
@@ -61,50 +62,14 @@ class _TimeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Expanded(
       child: GestureDetector(
         onTap: () async {
-          final initial = _parseTime(time);
           final picked = await showTimePicker(
             context: context,
-            initialTime: initial,
-            builder: (context, child) {
-              return Theme(
-                data: Theme.of(context).copyWith(
-                  timePickerTheme: const TimePickerThemeData(
-                    backgroundColor: Color(0xFF0E1621),
-
-                    hourMinuteColor: Color(0xFF223A55),
-                    hourMinuteTextColor: Colors.white,
-
-                    dialHandColor: Color(0xFF2F8BEF),
-                    dialBackgroundColor: Color(0xFF16202A),
-
-                    entryModeIconColor: Colors.blue,
-
-                    dayPeriodColor: Color(0xFF223A55),
-                    dayPeriodTextColor: Colors.white,
-                    dayPeriodBorderSide: BorderSide(color: Colors.blue),
-
-                    helpTextStyle: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
-
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(24)),
-                    ),
-                  ),
-                  colorScheme: const ColorScheme.dark(
-                    primary: Color(0xFF2F8BEF),
-                    onPrimary: Colors.white,
-                    surface: Color(0xFF0E1621),
-                    onSurface: Colors.white,
-                  ),
-                ),
-                child: child!,
-              );
-            },
+            initialTime: _parseTime(time),
           );
 
           if (picked != null) {
@@ -116,23 +81,24 @@ class _TimeTile extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: const Color(0xFF16202A),
+            color: colors.surface,
             borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: colors.border),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, color: Colors.blue),
+              Icon(icon, color: colors.primary),
               const SizedBox(height: 10),
               Text(
                 label,
-                style: const TextStyle(color: Colors.white54, fontSize: 12),
+                style: TextStyle(color: colors.textSecondary, fontSize: 12),
               ),
               const SizedBox(height: 4),
               Text(
                 time,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: colors.textPrimary,
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                 ),

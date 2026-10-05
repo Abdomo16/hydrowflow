@@ -13,7 +13,7 @@ class OnboardingState {
         weightKg: null,
         activityLevel: ActivityLevel.medium,
       ),
-      isValid: true,
+      isValid: false,
     );
   }
 

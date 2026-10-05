@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
+import 'package:intl/intl.dart';
 
+import '../../data/repositories/statistics_repository.dart';
 import '../../logic/statistics_cubit.dart';
 import '../../logic/statistics_state.dart';
 import '../widgets/hydration_score_card.dart';
@@ -14,37 +17,23 @@ class StatisticsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0E1621),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0E1621),
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: true,
-        title: const Text(
-          'Statistics & Streaks',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+      appBar: AppBar(title: const Text('Statistics & Streaks')),
       body: BlocBuilder<StatisticsCubit, StatisticsState>(
         builder: (context, state) {
-          if (state.loading) {
-            return const Center(
-              child: CircularProgressIndicator(color: Color(0xFF2F8BEF)),
-            );
+          if (!state.hasLoaded) {
+            return const Center(child: CircularProgressIndicator());
           }
 
           final isWeek = state.view == StatsView.week;
+          final now = DateTime.now();
 
           return RefreshIndicator(
             onRefresh: () => context.read<StatisticsCubit>().refresh(),
-            color: const Color(0xFF2F8BEF),
-            backgroundColor: const Color(0xFF16202A),
+            color: colors.primary,
+            backgroundColor: colors.surface,
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),
               physics: const AlwaysScrollableScrollPhysics(),
@@ -60,16 +49,24 @@ class StatisticsScreen extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   WeeklyBarChart(
-                    title: isWeek ? 'Weekly Progress' : 'Monthly Progress',
+                    title: isWeek
+                        ? 'This Week'
+                        : '${DateFormat('MMMM').format(now)} Progress',
                     cups: isWeek ? state.weeklyCups : state.monthlyCups,
                     labels: isWeek
                         ? const ['M', 'T', 'W', 'T', 'F', 'S', 'S']
-                        : const ['W1', 'W2', 'W3', 'W4'],
-                    spread: !isWeek,
+                        : List.generate(
+                            state.monthlyCups.length,
+                            (i) => 'W${i + 1}',
+                          ),
+                    highlightIndex: isWeek
+                        ? now.weekday - 1
+                        : StatisticsRepository.weekOfMonth(now),
                   ),
                   const SizedBox(height: 24),
 
                   MonthlyOverview(
+                    title: '${DateFormat('MMMM').format(now)} Overview',
                     avg: state.avgMonthly,
                     completion: state.completionRate,
                     bestDay: state.bestDay,

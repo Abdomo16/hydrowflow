@@ -14,7 +14,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 4,
+      version: 5,
       onCreate: (db, _) async {
         await _createTables(db);
       },
@@ -48,6 +48,21 @@ class AppDatabase {
             "ALTER TABLE reminder_settings ADD COLUMN sound TEXT",
           );
         }
+
+        // v5 migration (Detailed logs + ml tracking)
+        if (oldVersion < 5) {
+          await db.execute(
+            "ALTER TABLE daily_hydration ADD COLUMN total_ml INTEGER DEFAULT 0",
+          );
+          await db.execute('''
+            CREATE TABLE IF NOT EXISTS hydration_logs (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              date TEXT NOT NULL,
+              amount_ml INTEGER NOT NULL,
+              created_at TEXT NOT NULL
+            )
+          ''');
+        }
       },
     );
   }
@@ -67,7 +82,8 @@ class AppDatabase {
     await db.execute('''
       CREATE TABLE daily_hydration (
         date TEXT PRIMARY KEY,
-        consumed_cups INTEGER
+        consumed_cups INTEGER,
+        total_ml INTEGER DEFAULT 0
       )
     ''');
 
@@ -79,6 +95,15 @@ class AppDatabase {
         wake_time TEXT,
         sleep_time TEXT,
         sound TEXT
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE hydration_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT NOT NULL,
+        amount_ml INTEGER NOT NULL,
+        created_at TEXT NOT NULL
       )
     ''');
   }

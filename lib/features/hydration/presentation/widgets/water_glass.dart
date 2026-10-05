@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
 
 class WaterGlass extends StatelessWidget {
   final double progress;
@@ -9,6 +10,8 @@ class WaterGlass extends StatelessWidget {
   Widget build(BuildContext context) {
     const double glassHeight = 250;
 
+    final colors = context.colors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final clampedProgress = progress.clamp(0.0, 1.0);
 
     return Container(
@@ -16,7 +19,16 @@ class WaterGlass extends StatelessWidget {
       width: 170,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(46),
-        color: const Color(0xFF0F172A),
+        color: colors.glass,
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: colors.shadow,
+                  blurRadius: 24,
+                  offset: const Offset(0, 10),
+                ),
+              ],
       ),
       child: Stack(
         alignment: Alignment.bottomCenter,
@@ -62,7 +74,7 @@ class WaterGlass extends StatelessWidget {
                     child: Container(
                       height: 10,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.35),
+                        color: Colors.white.withValues(alpha: 0.35),
                         borderRadius: BorderRadius.circular(1),
                       ),
                     ),
@@ -77,10 +89,7 @@ class WaterGlass extends StatelessWidget {
             margin: const EdgeInsets.all(3),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(43),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.08),
-                width: 2,
-              ),
+              border: Border.all(color: colors.glassOutline, width: 2),
             ),
           ),
 
@@ -92,7 +101,7 @@ class WaterGlass extends StatelessWidget {
               width: 6,
               height: 80,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.06),
+                color: Colors.white.withValues(alpha: isDark ? 0.06 : 0.7),
                 borderRadius: BorderRadius.circular(6),
               ),
             ),

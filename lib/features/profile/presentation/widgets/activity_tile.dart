@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
 import '../../../onboarding/data/models/onboarding_model.dart';
 
 class ActivityTileWidget extends StatelessWidget {
@@ -19,32 +20,28 @@ class ActivityTileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeInOut,
       height: 73,
       decoration: BoxDecoration(
-        color: selected ? const Color(0xFF1E3A5F) : const Color(0xFF16202A),
+        color: selected ? colors.primarySoft : colors.surface,
         borderRadius: BorderRadius.circular(19),
         border: Border.all(
-          color: selected ? const Color(0xFF3A8DFF) : Colors.transparent,
+          color: selected ? colors.primary : colors.border,
           width: 1.3,
         ),
-        boxShadow: selected
-            ? [
-                BoxShadow(
-                  color: const Color(0xFF3A8DFF).withOpacity(0.12),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
-                ),
-              ]
-            : [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.18),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+        boxShadow: [
+          BoxShadow(
+            color: selected
+                ? colors.primary.withValues(alpha: 0.12)
+                : colors.shadow,
+            blurRadius: selected ? 12 : 8,
+            offset: Offset(0, selected ? 6 : 4),
+          ),
+        ],
       ),
       child: Material(
         color: Colors.transparent,
@@ -59,12 +56,14 @@ class ActivityTileWidget extends StatelessWidget {
                   height: 44,
                   width: 40,
                   decoration: BoxDecoration(
-                    color: selected
-                        ? Colors.white.withOpacity(0.2)
-                        : Colors.white.withOpacity(0.05),
+                    color: selected ? colors.surface : colors.surfaceAlt,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icon, size: 23, color: Colors.white),
+                  child: Icon(
+                    icon,
+                    size: 23,
+                    color: selected ? colors.primary : colors.textSecondary,
+                  ),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -74,10 +73,10 @@ class ActivityTileWidget extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: colors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 3),
@@ -85,7 +84,7 @@ class ActivityTileWidget extends StatelessWidget {
                         getSubtitle(),
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.white.withOpacity(0.7),
+                          color: colors.textSecondary,
                         ),
                       ),
                     ],
@@ -96,7 +95,7 @@ class ActivityTileWidget extends StatelessWidget {
                       ? Icons.radio_button_checked
                       : Icons.radio_button_off,
                   size: 20,
-                  color: Colors.white,
+                  color: selected ? colors.primary : colors.textMuted,
                 ),
               ],
             ),

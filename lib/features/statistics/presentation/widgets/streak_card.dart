@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
 
 class StreakCard extends StatelessWidget {
   final int streak;
@@ -7,6 +8,7 @@ class StreakCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final subtitle = streak == 0
         ? 'Start your first streak 💧'
         : 'Keep going, don’t stop 🔥';
@@ -14,26 +16,27 @@ class StreakCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xFF16202A),
+        color: colors.surface,
         borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
+            children: [
               Text(
                 'Current\nStreak',
                 style: TextStyle(
-                  color: Colors.white54,
+                  color: colors.textSecondary,
                   fontSize: 12,
                   height: 1.4,
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               Icon(
                 Icons.local_fire_department,
-                color: Color(0xFFF97316),
+                color: colors.warning,
                 size: 18,
               ),
             ],
@@ -41,8 +44,8 @@ class StreakCard extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             '$streak days',
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: colors.textPrimary,
               fontSize: 26,
               fontWeight: FontWeight.w800,
             ),
@@ -50,7 +53,7 @@ class StreakCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             subtitle,
-            style: const TextStyle(color: Colors.white54, fontSize: 12),
+            style: TextStyle(color: colors.textSecondary, fontSize: 12),
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
 
 class FrequencySelector extends StatelessWidget {
   final int selected;
@@ -12,18 +13,24 @@ class FrequencySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final options = [30, 60, 120];
+    final colors = context.colors;
+    const options = [30, 60, 120];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Frequency',
+        Text(
+          'Remind me every',
           style: TextStyle(
-            color: Colors.white,
+            color: colors.textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'The timer restarts each time you log a drink.',
+          style: TextStyle(color: colors.textSecondary, fontSize: 12.5),
         ),
         const SizedBox(height: 12),
         Wrap(
@@ -40,21 +47,18 @@ class FrequencySelector extends StatelessWidget {
                     : 'Every 2 hours',
               ),
               selected: isSelected,
-              selectedColor: Colors.blue.withOpacity(0.9),
-              backgroundColor: const Color(0xFF1E293B),
-
+              showCheckmark: false,
+              selectedColor: colors.primary,
+              backgroundColor: colors.surface,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
                 side: BorderSide(
-                  color: isSelected
-                      ? Colors.blue
-                      : Colors.white.withOpacity(0.15),
-                  width: 3,
+                  color: isSelected ? colors.primary : colors.border,
+                  width: 1.5,
                 ),
               ),
-
               labelStyle: TextStyle(
-                color: isSelected ? Colors.white : Colors.white70,
+                color: isSelected ? colors.onPrimary : colors.textSecondary,
                 fontWeight: FontWeight.w600,
               ),
               onSelected: (_) => onSelect(minutes),

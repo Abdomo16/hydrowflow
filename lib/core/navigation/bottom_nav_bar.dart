@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
 
 class AppBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -12,10 +13,19 @@ class AppBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF0B1220),
-        border: Border(top: BorderSide(color: Color(0xFF1E2A3A), width: 1)),
+      decoration: BoxDecoration(
+        color: colors.navBar,
+        border: Border(top: BorderSide(color: colors.border, width: 1)),
+        boxShadow: [
+          BoxShadow(
+            color: colors.shadow,
+            blurRadius: 16,
+            offset: const Offset(0, -4),
+          ),
+        ],
       ),
       child: BottomNavigationBar(
         currentIndex: currentIndex,
@@ -24,8 +34,8 @@ class AppBottomNavBar extends StatelessWidget {
         elevation: 0,
         type: BottomNavigationBarType.fixed,
 
-        selectedItemColor: const Color(0xFF2F8BEF),
-        unselectedItemColor: Colors.white54,
+        selectedItemColor: colors.primary,
+        unselectedItemColor: colors.textMuted,
 
         selectedLabelStyle: const TextStyle(
           fontSize: 11,
@@ -55,7 +65,7 @@ class AppBottomNavBar extends StatelessWidget {
           BottomNavigationBarItem(
             icon: Icon(Icons.settings_outlined),
             activeIcon: Icon(Icons.settings),
-            label: 'SETUP',
+            label: 'SETTINGS',
           ),
         ],
       ),

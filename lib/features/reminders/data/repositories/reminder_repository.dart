@@ -1,5 +1,6 @@
 import 'package:hydrowflow/database/app_database.dart';
 import 'package:hydrowflow/features/reminders/data/models/reminder_settings.dart';
+import 'package:hydrowflow/features/reminders/data/models/reminder_sound.dart';
 import 'package:sqflite/sqflite.dart';
 
 class ReminderRepository {
@@ -14,7 +15,7 @@ class ReminderRepository {
         frequencyMinutes: 60,
         wakeTime: '08:00',
         sleepTime: '22:30',
-        sound: 'ultra_minimal_tech_pulse',
+        sound: ReminderSound.systemDefaultId,
       );
 
       await saveSettings(defaultSettings);
@@ -28,7 +29,7 @@ class ReminderRepository {
       frequencyMinutes: row['frequency_minutes'] as int,
       wakeTime: row['wake_time'] as String,
       sleepTime: row['sleep_time'] as String,
-      sound: row['sound'] as String? ?? 'ultra_minimal_tech_pulse',
+      sound: ReminderSound.byId(row['sound'] as String?).id,
     );
   }
 

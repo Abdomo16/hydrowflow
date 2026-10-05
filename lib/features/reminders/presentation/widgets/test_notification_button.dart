@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hydrowflow/core/notifications/notification_service.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
 import 'package:hydrowflow/features/reminders/logic/reminder_cubit.dart';
 
 class TestNotificationButton extends StatelessWidget {
@@ -8,56 +8,37 @@ class TestNotificationButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return SizedBox(
       width: double.infinity,
       height: 54,
       child: ElevatedButton(
-        onPressed: () {
-          NotificationService.schedule(
-            id: 999,
-            dateTime: DateTime.now().add(const Duration(seconds: 5)),
-            title: 'TEST ',
-            body: 'This is your selected sound',
-            sound: context.read<ReminderCubit>().state.settings.sound,
-          );
+        onPressed: () async {
+          final messenger = ScaffoldMessenger.of(context);
+          final sent = await context.read<ReminderCubit>().sendTest();
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              behavior: SnackBarBehavior.fixed,
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              duration: const Duration(seconds: 3),
-
-              content: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1E2A38),
-                  borderRadius: BorderRadius.circular(18),
-                  boxShadow: [
-                    BoxShadow(
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
-                      color: Colors.black.withOpacity(0.25),
-                    ),
-                  ],
-                ),
-
-                child: Row(
-                  children: const [
+          messenger
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(
+                duration: const Duration(seconds: 3),
+                content: Row(
+                  children: [
                     Icon(
-                      Icons.notifications_active,
-                      color: Color(0xFF2F8BEF),
+                      sent
+                          ? Icons.notifications_active
+                          : Icons.notifications_off_outlined,
+                      color: sent ? colors.primaryLight : colors.danger,
                       size: 22,
                     ),
-                    SizedBox(width: 12),
-
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        "Test notification will appear in 5 seconds ",
-                        style: TextStyle(
+                        sent
+                            ? 'Test notification sent'
+                            : 'Could not send. Please allow notifications.',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14.5,
                           fontWeight: FontWeight.w600,
@@ -67,12 +48,10 @@ class TestNotificationButton extends StatelessWidget {
                   ],
                 ),
               ),
-            ),
-          );
+            );
         },
-
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF2F8BEF),
+          backgroundColor: colors.primary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),

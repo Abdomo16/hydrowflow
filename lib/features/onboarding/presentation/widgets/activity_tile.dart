@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
 
 class ActivityTile extends StatelessWidget {
   final IconData icon;
@@ -18,16 +19,18 @@ class ActivityTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 14),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFF1C2B3A) : const Color(0xFF16202A),
+          color: selected ? colors.primarySoft : colors.surface,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: selected ? Colors.blue : Colors.transparent,
+            color: selected ? colors.primary : colors.border,
             width: 1.5,
           ),
         ),
@@ -39,14 +42,12 @@ class ActivityTile extends StatelessWidget {
               height: 44,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: selected
-                    ? const Color(0xFF223A55)
-                    : const Color(0xFF1E293B),
+                color: selected ? colors.surface : colors.surfaceAlt,
               ),
               child: Icon(
                 icon,
                 size: 22,
-                color: selected ? Colors.blue : Colors.white70,
+                color: selected ? colors.primary : colors.textSecondary,
               ),
             ),
 
@@ -60,7 +61,7 @@ class ActivityTile extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: colors.textPrimary,
                       fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
                       fontSize: 15,
                     ),
@@ -68,8 +69,8 @@ class ActivityTile extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      color: Colors.white54,
+                    style: TextStyle(
+                      color: colors.textSecondary,
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),
@@ -81,7 +82,7 @@ class ActivityTile extends StatelessWidget {
             //  Radio Indicator
             Icon(
               selected ? Icons.radio_button_checked : Icons.radio_button_off,
-              color: selected ? Colors.blue : Colors.white38,
+              color: selected ? colors.primary : colors.textMuted,
               size: 26,
             ),
           ],

@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
 import 'package:intl/intl.dart';
 
 class MonthlyOverview extends StatelessWidget {
+  final String title;
   final double avg;
   final double completion;
   final String bestDay;
 
   const MonthlyOverview({
     super.key,
+    this.title = 'Monthly Overview',
     required this.avg,
     required this.completion,
     required this.bestDay,
   });
 
-  /// Converts date string (yyyy-MM-dd) to "10 October"
+  /// Converts date string (yyyy-MM-dd) to "10 Oct"
   String _formatBestDay(String date) {
     if (date.isEmpty) return '-';
 
@@ -30,10 +33,10 @@ class MonthlyOverview extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Monthly Overview',
+        Text(
+          title,
           style: TextStyle(
-            color: Colors.white,
+            color: context.colors.textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
@@ -61,25 +64,28 @@ class _MiniCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: const Color(0xFF16202A),
+          color: colors.surface,
           borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: colors.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               title,
-              style: const TextStyle(color: Colors.white54, fontSize: 12),
+              style: TextStyle(color: colors.textSecondary, fontSize: 12),
             ),
             const SizedBox(height: 6),
             Text(
               value,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: colors.textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
               ),

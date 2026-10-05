@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hydrowflow/core/theme/app_theme.dart';
 
 class HydrationScoreCard extends StatelessWidget {
   final double score;
@@ -7,34 +8,37 @@ class HydrationScoreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xFF16202A),
+        color: colors.surface,
         borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
+            children: [
               Text(
                 'Hydration\nScore',
                 style: TextStyle(
-                  color: Colors.white54,
+                  color: colors.textSecondary,
                   fontSize: 12,
                   height: 1.4,
                 ),
               ),
-              Spacer(),
-              Icon(Icons.water_drop, color: Color(0xFF2F8BEF), size: 18),
+              const Spacer(),
+              Icon(Icons.water_drop, color: colors.primary, size: 18),
             ],
           ),
           const SizedBox(height: 14),
           Text(
             '${score.toStringAsFixed(0)}%',
-            style: const TextStyle(
-              color: Color(0xFF2F8BEF),
+            style: TextStyle(
+              color: colors.primary,
               fontSize: 28,
               fontWeight: FontWeight.w800,
             ),

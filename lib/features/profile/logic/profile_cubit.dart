@@ -20,6 +20,8 @@ class ProfileCubit extends Cubit<ProfileState> {
     if (data != null) {
       final profile = ProfileModel.fromMap(data);
       emit(state.copyWith(profile: profile, isLoading: false));
+    } else {
+      emit(state.copyWith(isLoading: false));
     }
   }
 
@@ -71,38 +73,46 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
   }
 
-  Future<void> saveProfile() async {
+  /// Saves the profile and returns the recalculated daily goal (liters),
+  /// or null if saving failed.
+  Future<double?> saveProfile() async {
     final current = state.profile;
-    if (current == null) return;
+    if (current == null || state.isSaving) return null;
 
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(isSaving: true));
 
-    final onboardingModel = OnboardingModel(
-      heightCm: current.height,
-      weightKg: current.weight,
-      activityLevel: current.activityLevel,
-    );
-
-    final newGoal = WaterCalculator.calculate(onboardingModel);
-
-    await repository.updateProfile(
-      height: current.height,
-      weight: current.weight,
-      activityLevel: current.activityLevel.name,
-      dailyGoal: newGoal,
-    );
-
-    emit(
-      state.copyWith(
-        profile: ProfileModel(
-          height: current.height,
-          weight: current.weight,
+    try {
+      final newGoal = WaterCalculator.calculate(
+        OnboardingModel(
+          heightCm: current.height,
+          weightKg: current.weight,
           activityLevel: current.activityLevel,
-          dailyGoal: newGoal,
         ),
-        isLoading: false,
-        isSaved: true,
-      ),
-    );
+      );
+
+      await repository.updateProfile(
+        height: current.height,
+        weight: current.weight,
+        activityLevel: current.activityLevel.name,
+        dailyGoal: newGoal,
+      );
+
+      emit(
+        state.copyWith(
+          profile: ProfileModel(
+            height: current.height,
+            weight: current.weight,
+            activityLevel: current.activityLevel,
+            dailyGoal: newGoal,
+          ),
+          isSaving: false,
+          isSaved: true,
+        ),
+      );
+      return newGoal;
+    } catch (e) {
+      emit(state.copyWith(isSaving: false, error: 'Could not save. Try again.'));
+      return null;
+    }
   }
 }
