@@ -129,7 +129,7 @@ class _SettingsView extends StatelessWidget {
                 title: 'Rate Us',
                 onTap: () => _openUrl(
                   context,
-                  'https://play.google.com/store/apps/details?id=com.example.hydrowflow',
+                  'https://play.google.com/store/apps/details?id=app.hydrowflow',
                 ),
               ),
               _SettingsTile(

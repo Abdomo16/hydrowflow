@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -116,9 +117,10 @@ class _ReminderViewState extends State<_ReminderView>
 
                   const SoundSelector(),
 
-                  const SizedBox(height: 32),
-
-                  const TestNotificationButton(),
+                  if (kDebugMode) ...[
+                    const SizedBox(height: 32),
+                    const TestNotificationButton(),
+                  ],
 
                   const SizedBox(height: 40),
                 ],

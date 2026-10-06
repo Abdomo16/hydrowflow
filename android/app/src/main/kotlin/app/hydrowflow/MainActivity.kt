@@ -1,4 +1,4 @@
-package com.example.hydrowflow
+package app.hydrowflow
 
 import io.flutter.embedding.android.FlutterActivity
 
