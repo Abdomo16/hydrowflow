@@ -1,4 +1,4 @@
-package com.example.hydrowflow
+package app.hydrowflow
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
